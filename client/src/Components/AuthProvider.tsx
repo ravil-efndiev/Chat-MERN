@@ -7,19 +7,19 @@ import {
   useEffect,
   useState,
 } from "react";
-import { User } from "../types/user";
+import { AuthUser } from "../types/user";
 import axios from "axios";
 import { CircularProgress } from "@mui/material";
 
 interface AuthContextType {
-  currentUser: User;
-  setCurrentUser: Dispatch<SetStateAction<User>>;
+  currentUser: AuthUser;
+  setCurrentUser: Dispatch<SetStateAction<AuthUser>>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 function AuthProvider({ children }: PropsWithChildren) {
-  const [currentUser, setCurrentUser] = useState<User>(null);
+  const [currentUser, setCurrentUser] = useState<AuthUser>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

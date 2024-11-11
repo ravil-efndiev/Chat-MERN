@@ -1,8 +1,28 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
 body {
-    background-color: #212121;
+  background-color: #212121;
 }
 
 a {
-    text-decoration: none;
-    color: #CE93D8;
+  text-decoration: none;
+  color: #ce93d8;
+}
+
+.sidebar {
+  width: 25vw;
+  height: 100vh;
+}
+
+.sidebar-user {
+  display: flex;
+  padding: 15px;
+  cursor: pointer;
+}
+
+.sidebar-user:hover {
+  background-color: #303030;
 }

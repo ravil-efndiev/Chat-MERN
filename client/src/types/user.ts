@@ -1,6 +1,8 @@
-export type User = {
+export interface APIResponseUser {
   id: string;
   fullName: string;
   username: string;
   profilePicture?: string;
-} | null;
+}
+
+export type AuthUser = APIResponseUser | null;

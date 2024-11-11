@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-async function connectToMongo() {
+async function connectDB() {
   try {
     if (!process.env.DB_URI)
       throw new Error("No database URI in .env");
@@ -12,4 +12,4 @@ async function connectToMongo() {
   }
 }
 
-export default connectToMongo;
+export default connectDB;
