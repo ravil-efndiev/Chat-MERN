@@ -23,6 +23,24 @@ a {
   cursor: pointer;
 }
 
+.user-active {
+  background-color: #484d6f;
+}
+
 .sidebar-user:hover {
   background-color: #303030;
+}
+
+.user-active:hover {
+  background-color: #484d6f;
+}
+
+.chat-input-bar {
+  display: flex;
+  background-color: #303030;
+  height: 50px;
+  align-items: center;
+  width: 95%;
+  margin: 0 auto;
+  border-radius: 40px;
 }

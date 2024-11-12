@@ -42,10 +42,12 @@ router.post("/register", async (req: Request<{}, {}, UserModelType>, res: Respon
 
     setAuthToken(user._id.toString(), res);
     res.status(200).json({
-      id: user._id.toString(),
-      username: user.username,
-      fullName: user.fullName,
-      profilePicture: user.profilePicture,
+      user: {
+        id: user._id.toString(),
+        username: user.username,
+        fullName: user.fullName,
+        profilePicture: user.profilePicture,
+      }
     });
   } 
   catch (err) {
@@ -73,10 +75,12 @@ router.post("/login", async (req: Request<{}, {}, LoginRequestType>, res: Respon
     setAuthToken(user._id.toString(), res);
     
     res.status(200).json({
-      id: user._id.toString(),
-      username: user.username,
-      fullName: user.fullName,
-      profilePicture: user.profilePicture,
+      user: {
+        id: user._id.toString(),
+        username: user.username,
+        fullName: user.fullName,
+        profilePicture: user.profilePicture,
+      }
     });
   } 
   catch (err) {
@@ -106,10 +110,12 @@ router.get("/status", checkAuthStatus, async (req: Request, res: Response) => {
     }
 
     res.status(200).json({
-      id: user._id.toString(),
-      username: user.username,
-      fullName: user.fullName,
-      profilePicture: user.profilePicture,
+      user: {
+        id: user._id.toString(),
+        username: user.username,
+        fullName: user.fullName,
+        profilePicture: user.profilePicture,
+      }
     });
   } 
   catch (err) {

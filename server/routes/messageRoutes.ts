@@ -46,9 +46,11 @@ router.post(
       await chat.save();
 
       res.status(201).json({
-        senderID: senderID,
-        receiverID: receiverID,
-        message: message,
+        message: {
+          senderID: senderID,
+          receiverID: receiverID,
+          message: message,
+        }
       });
     } 
     catch (err) {

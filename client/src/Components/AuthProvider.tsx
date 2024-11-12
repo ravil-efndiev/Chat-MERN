@@ -26,12 +26,7 @@ function AuthProvider({ children }: PropsWithChildren) {
     axios
       .get("http://localhost:3000/api/auth/status", { withCredentials: true })
       .then((res) => {
-        setCurrentUser({
-          id: res.data.id,
-          username: res.data.username,
-          fullName: res.data.fullName,
-          profilePicture: res.data.profilePicture,
-        })
+        setCurrentUser(res.data.user)
       })
       .catch(() => {
         setCurrentUser(null);
@@ -39,6 +34,18 @@ function AuthProvider({ children }: PropsWithChildren) {
       .finally(() => {
         setLoading(false);
       });
+
+      const interceptor = axios.interceptors.response.use(
+        (res) => res,
+        (error) => {
+          if (error.response?.status === 401) {
+            setCurrentUser(null);
+          }
+          return Promise.reject(error);
+        }
+      );
+    
+      return () => axios.interceptors.response.eject(interceptor);
   }, []);
 
   if (loading) {

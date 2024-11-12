@@ -4,11 +4,12 @@ import axios from "axios";
 import { Box, Paper, Typography } from "@mui/material";
 
 interface Props {
-  userClicked: (id: string) => void;
+  onUserSelected: (id: string) => void;
 }
 
-function Sidebar({ userClicked }: Props) {
+function Sidebar({ onUserSelected }: Props) {
   const [users, setUsers] = useState<APIResponseUser[]>([]);
+  const [activeUserID, setActiveUserID] = useState("");
 
   useEffect(() => {
     axios
@@ -21,13 +22,22 @@ function Sidebar({ userClicked }: Props) {
       .catch((err) => console.error(err));
   }, []);
 
+  const handleUserClick = (id: string) => {
+    onUserSelected(id);
+    setActiveUserID(id);
+  };
+
   return (
     <Paper elevation={5} className="sidebar">
       {users.map((user) => (
         <div
-          className="sidebar-user"
+          className={
+            activeUserID === user.id
+              ? "sidebar-user user-active"
+              : "sidebar-user"
+          }
           key={user.id}
-          onClick={() => userClicked(user.id)}
+          onClick={() => handleUserClick(user.id)}
         >
           <img
             src="https://avatar.iran.liara.run/public/boy"

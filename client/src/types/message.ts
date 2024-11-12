@@ -1,4 +1,4 @@
-export interface APIRespondMessage {
+export interface APIResponseMessage {
   id: string;
   message: string;
   createdAt: Date;

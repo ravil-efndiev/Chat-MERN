@@ -7,13 +7,13 @@ export function generateToken(id: string, res: Response) {
   }
 
   const token = jwt.sign({ id: id }, process.env.JWT_SECRET, {
-    expiresIn: "1h",
+    expiresIn: "14d",
   });
 
   res.cookie("authToken", token, {
     httpOnly: true,
     secure: process.env.DEV_MODE !== "true",
-    maxAge: 60 * 60 * 1000,
+    maxAge: 14 * 24 * 60 * 60 * 1000,
   });
 }
 

@@ -31,12 +31,7 @@ function Login() {
         { withCredentials: true }
       )
       .then((res) => {
-        setCurrentUser({
-          id: res.data.id,
-          fullName: res.data.fullName,
-          username: res.data.username,
-          profilePicture: res.data.profilePicture,
-        });
+        setCurrentUser(res.data.user);
         navigate("/");
       })
       .catch((error) => {
