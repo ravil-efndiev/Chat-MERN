@@ -7,7 +7,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { AuthUser } from "../types/user";
+import { AuthUser } from "../../types/user";
 import axios from "axios";
 import { CircularProgress } from "@mui/material";
 

@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import FormWrapper from "../Components/FormWrapper";
 import Input from "../Components/Input";
 import useFormValues from "../hooks/useFormValues";
-import { useAuth } from "../Components/AuthProvider";
+import { useAuth } from "../Components/authentication/AuthProvider";
 
 function Login() {
   const { formValues, handleInputChange } = useFormValues({
@@ -41,10 +41,10 @@ function Login() {
   };
 
   return (
-    <FormWrapper>
+    <FormWrapper width="30%">
       <form onSubmit={handleFormSubmit}>
         <Typography variant="h4" sx={{ mb: 2, fontWeight: 400 }}>
-          Log into Your Accout
+          Log into your accout
         </Typography>
         <Input
           label="Username"

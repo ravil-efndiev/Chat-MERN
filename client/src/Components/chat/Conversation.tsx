@@ -1,9 +1,9 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
-import { APIResponseMessage } from "../types/message";
-import sendIcon from "../assets/send-arrow.svg";
+import { APIResponseMessage } from "../../types/message";
+import sendIcon from "../../assets/send-arrow.svg";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { APIResponseUser } from "../types/user";
+import { APIResponseUser } from "../../types/user";
 import MessageBubble from "./MessageBubble";
 
 interface Props {
@@ -21,9 +21,7 @@ function Conversation({ with: otherUserID }: Props) {
       try {
         const res = await axios.get(
           `http://localhost:3000/api/users/get-by-id/${otherUserID}`,
-          {
-            withCredentials: true,
-          }
+          { withCredentials: true }
         );
         setOtherUser(res.data.user);
       } catch (err) {
@@ -36,9 +34,7 @@ function Conversation({ with: otherUserID }: Props) {
       try {
         const res = await axios.get(
           `http://localhost:3000/api/messages/get-all/${otherUserID}`,
-          {
-            withCredentials: true,
-          }
+          { withCredentials: true }
         );
         setMessages(res.data.messages);
       } catch (err) {

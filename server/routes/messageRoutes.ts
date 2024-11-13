@@ -52,8 +52,7 @@ router.post(
           message: message,
         }
       });
-    } 
-    catch (err) {
+    } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Internal server error" });
     }
@@ -87,8 +86,7 @@ router.get(
       }));
 
       res.status(200).json({messages: filteredMessages});
-    } 
-    catch (err) {
+    } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Internal server error" });
     }

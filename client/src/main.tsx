@@ -5,8 +5,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Chat from "./pages/Chat";
 import SignUp from "./pages/SignUp";
 import Login from "./pages/Login";
-import AuthProvider from "./Components/AuthProvider";
-import ProtectedRoute from "./Components/ProtectedRoute";
+import AuthProvider from "./Components/authentication/AuthProvider";
+import ProtectedRoute from "./Components/authentication/ProtectedRoute";
 import { createTheme, ThemeProvider } from "@mui/material";
 
 const router = createBrowserRouter([

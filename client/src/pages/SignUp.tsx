@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { Button, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import { useAuth } from "../Components/AuthProvider";
+import { useAuth } from "../Components/authentication/AuthProvider";
 import useFormValues from "../hooks/useFormValues";
 import FormWrapper from "../Components/FormWrapper";
 import Input from "../Components/Input";
+import ProfilePictureUpload from "../Components/ProfilePictureUpload";
 
 function SignUp() {
   const { formValues, handleInputChange } = useFormValues({
@@ -15,23 +16,31 @@ function SignUp() {
     password: "",
   });
 
+  const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [serverError, setServerError] = useState<string | null>();
+
   const { setCurrentUser } = useAuth();
   const navigate = useNavigate();
 
   const handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
+    const formData = new FormData();
+    formData.append("username", formValues.username);
+    formData.append("password", formValues.password);
+    formData.append("fullName", formValues.fullName);
+
+    if (profilePicture) {
+      formData.append("profilePicture", profilePicture);
+    }
+
     axios
-      .post(
-        "http://localhost:3000/api/auth/register",
-        {
-          username: formValues.username,
-          fullName: formValues.fullName,
-          password: formValues.password,
+      .post("http://localhost:3000/api/auth/register", formData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
         },
-        { withCredentials: true }
-      )
+      })
       .then((res) => {
         setCurrentUser(res.data.user);
         navigate("/");
@@ -43,29 +52,37 @@ function SignUp() {
   };
 
   return (
-    <FormWrapper>
+    <FormWrapper width="45%">
       <form onSubmit={handleFormSubmit}>
-        <Typography variant="h4" sx={{ mb: 2, fontWeight: 400 }}>
-          Create an Account
-        </Typography>
-        <Input
-          type="text"
-          label="Your Name"
-          onChange={handleInputChange("fullName")}
-          value={formValues.fullName}
-        />
-        <Input
-          label="Username"
-          type="text"
-          onChange={handleInputChange("username")}
-          value={formValues.username}
-        />
-        <Input
-          label="Password"
-          type="password"
-          onChange={handleInputChange("password")}
-          value={formValues.password}
-        />
+        <Box sx={{ display: "flex", gap: 5 }}>
+          <Box sx={{ width: "55%" }}>
+            <Typography variant="h4" sx={{ mb: 2, fontWeight: 400 }}>
+              Create an Account
+            </Typography>
+            <Input
+              type="text"
+              label="Your Name"
+              onChange={handleInputChange("fullName")}
+              value={formValues.fullName}
+            />
+            <Input
+              label="Username"
+              type="text"
+              onChange={handleInputChange("username")}
+              value={formValues.username}
+            />
+            <Input
+              label="Password"
+              type="password"
+              onChange={handleInputChange("password")}
+              value={formValues.password}
+            />
+          </Box>
+          <ProfilePictureUpload
+            width="45%"
+            onFileChange={(file) => setProfilePicture(file)}
+          />
+        </Box>
         <Button variant="contained" color="secondary" type="submit">
           Sign Up
         </Button>

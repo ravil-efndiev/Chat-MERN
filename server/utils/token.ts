@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { Response } from "express";
 
-export function generateToken(id: string, res: Response) {
+export function sendAuthToken(id: string, res: Response) {
   if (!process.env.JWT_SECRET || !process.env.DEV_MODE) {
     throw new Error(".env variables aren't properly set up");
   }

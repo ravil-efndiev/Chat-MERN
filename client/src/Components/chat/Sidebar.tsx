@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { APIResponseUser } from "../types/user";
+import { APIResponseUser } from "../../types/user";
 import axios from "axios";
 import { Box, Paper, Typography } from "@mui/material";
 

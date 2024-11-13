@@ -1,10 +1,10 @@
-import { model, Schema } from "mongoose";
+import { model, Schema, Types } from "mongoose";
 
 export interface UserModelType {
   fullName: string;
   username: string;
   password: string;
-  profilePicture?: string;
+  profilePicture?: Types.ObjectId;
 }
 
 const userSchema = new Schema<UserModelType>({
@@ -21,7 +21,10 @@ const userSchema = new Schema<UserModelType>({
     type: String,
     required: true,
   },
-  profilePicture: String,
+  profilePicture: {
+    type: Schema.Types.ObjectId,
+    ref: "fs.files",
+  },
 });
 
 const UserModel = model<UserModelType>("User", userSchema);
