@@ -5,9 +5,10 @@ import { Box, Paper, Typography } from "@mui/material";
 
 interface Props {
   onUserSelected: (id: string) => void;
+  onDrawerOpen: () => void;
 }
 
-function Sidebar({ onUserSelected }: Props) {
+function Sidebar({ onUserSelected, onDrawerOpen }: Props) {
   const [users, setUsers] = useState<APIResponseUser[]>([]);
   const [activeUserID, setActiveUserID] = useState("");
 
@@ -29,6 +30,14 @@ function Sidebar({ onUserSelected }: Props) {
 
   return (
     <Paper elevation={5} className="sidebar">
+      <div className="sidebar-top">
+        <Button
+          variant="contained"
+          onClick={() => onDrawerOpen()}
+        >
+          Test
+        </Button>
+      </div>
       {users.map((user) => (
         <div
           className={
