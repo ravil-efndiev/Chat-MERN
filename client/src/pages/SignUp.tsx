@@ -60,14 +60,12 @@ function SignUp() {
               Create an Account
             </Typography>
             <Input
-              type="text"
               label="Your Name"
               onChange={handleInputChange("fullName")}
               value={formValues.fullName}
             />
             <Input
               label="Username"
-              type="text"
               onChange={handleInputChange("username")}
               value={formValues.username}
             />
@@ -87,7 +85,7 @@ function SignUp() {
           Sign Up
         </Button>
       </form>
-      {serverError && <Typography>{serverError}</Typography>}
+      {serverError && <Typography sx={{color: "#b71d1d"}}>{serverError}</Typography>}
     </FormWrapper>
   );
 }

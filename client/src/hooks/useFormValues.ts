@@ -11,7 +11,11 @@ function useFormValues(initialValues: { [key: string]: string }) {
       }));
     };
 
-  return { formValues, handleInputChange };
+  const resetForm = () => {
+    setFormValues(initialValues);
+  }
+
+  return { formValues, handleInputChange, resetForm };
 }
 
 export default useFormValues;

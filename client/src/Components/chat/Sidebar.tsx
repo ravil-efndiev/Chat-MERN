@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { APIResponseUser } from "../../types/user";
 import axios from "axios";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Button, Paper, Typography } from "@mui/material";
+import drawerSwitchImg from "../../assets/drawer-switch.svg"
 
 interface Props {
   onUserSelected: (id: string) => void;
@@ -34,8 +35,9 @@ function Sidebar({ onUserSelected, onDrawerOpen }: Props) {
         <Button
           variant="contained"
           onClick={() => onDrawerOpen()}
+          sx={{minWidth: 0, p: 1, m: 1}}
         >
-          Test
+          <img src={drawerSwitchImg} width={30} alt="drawer switch" />
         </Button>
       </div>
       {users.map((user) => (

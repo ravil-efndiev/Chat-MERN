@@ -13,18 +13,7 @@ function Chat() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
-    axios
-      .get(
-        `http://localhost:3000/api/users/profile-picture/${currentUser?.profilePicture}`,
-        {
-          responseType: "blob",
-          withCredentials: true,
-        }
-      )
-      .then((res) => {
-        setPfpUrl(URL.createObjectURL(res.data));
-      })
-      .catch((err) => console.error(err));
+
   }, []);
 
   return (

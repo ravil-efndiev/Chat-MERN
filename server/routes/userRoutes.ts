@@ -6,6 +6,7 @@ import UserModel, { UserModelType } from "../db/models/userModel";
 import { sendUserData, uploadProfilePic } from "../utils/functions";
 import { bucket } from "../db/connect";
 import multer from "multer";
+import { usernameValid, validateAndTrimFullname } from "../utils/validation";
 
 const router = Router();
 
@@ -122,15 +123,33 @@ router.post(
     const userID = new Types.ObjectId(req.userID as string);
     const { fullName, username } = req.body;
     const pfp = req.file;
-    
+
+    if (!pfp && !username && !fullName) {
+      res.status(304).json({message: "Nothing to update"});
+      return;
+    }
+
     const user = await UserModel.findById(userID);
     if (!user) {
       res.status(404).json({error: "User doesn't exist"});
       return;
     }
 
-    user.fullName = fullName || user.fullName;
-    user.username = username || user.username;
+    if (fullName) {
+      const validFullName = validateAndTrimFullname(fullName, res);
+      if (!validFullName) return;
+      user.fullName = validFullName;
+    }
+
+    if (username) {
+      const nameTaken = await UserModel.findOne({ username: username });
+      if (nameTaken) {
+        res.status(403).json({ error: `User with this username already exists` });
+        return;
+      }
+      if (!usernameValid(username, res)) return;
+      user.username = username;
+    }
 
     if (!pfp) {
       await user.save();

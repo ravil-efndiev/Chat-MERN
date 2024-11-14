@@ -3,10 +3,19 @@ import { Button, Avatar, Typography, Box } from "@mui/material";
 
 interface Props {
   onFileChange: (file: File) => void;
-  width: string | number;
+  width?: string | number;
+  defaultPfpURL?: string;
+  customHeading?: string;
+  customSx?: {[key: string]: any};
 }
 
-function ProfilePictureUpload({ onFileChange, width }: Props) {
+function ProfilePictureUpload({
+  onFileChange,
+  width,
+  defaultPfpURL,
+  customHeading,
+  customSx,
+}: Props) {
   const [preivew, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -27,21 +36,25 @@ function ProfilePictureUpload({ onFileChange, width }: Props) {
   };
 
   return (
-    <Box sx={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      width: width
-    }}>
+    <Box
+      sx={{
+        ...customSx,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        width: width || "auto",
+        p: 1,
+      }}
+    >
       <Typography variant="h6" gutterBottom>
-        Upload Profile Picture
+        {customHeading || "Upload Profile Picture"}
       </Typography>
       <Avatar
         alt="Profile Picture"
-        src={preivew || ""}
-        sx={{ width: 100, height: 100, marginBottom: 2, mx: "auto"}}
+        src={preivew || defaultPfpURL || ""}
+        sx={{ width: 100, height: 100, marginBottom: 2, mx: "auto" }}
       />
-      <Box sx={{display: "flex"}}>
+      <Box sx={{ display: "flex" }}>
         <input
           type="file"
           style={{ display: "none" }}
@@ -49,11 +62,7 @@ function ProfilePictureUpload({ onFileChange, width }: Props) {
           accept="image/*"
           ref={fileInputRef}
         />
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={handleUploadClick}
-        >
+        <Button variant="outlined" color="primary" onClick={handleUploadClick}>
           Choose File
         </Button>
       </Box>

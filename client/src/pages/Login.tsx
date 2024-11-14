@@ -48,7 +48,6 @@ function Login() {
         </Typography>
         <Input
           label="Username"
-          type="text"
           onChange={handleInputChange("username")}
           value={formValues.username}
         />
@@ -65,7 +64,7 @@ function Login() {
       <Typography sx={{ fontWeight: 100, fontSize: 14, mt: 4 }}>
         Don't have an account? <Link to="/signup">Sign Up</Link>
       </Typography>
-      {serverError && <Typography>{serverError}</Typography>}
+      {serverError && <Typography sx={{color: "#b71d1d"}}>{serverError}</Typography>}
     </FormWrapper>
   );
 }
