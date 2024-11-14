@@ -107,7 +107,7 @@ router.get(
   }
 );
 
-interface UpdateRequestBodyType {
+interface UpdateRequestType {
   fullName?: string;
   username?: string;
 }
@@ -118,7 +118,7 @@ router.post(
   "/update", 
   checkAuthStatus, 
   upload.single("profilePicture"), 
-  async (req: Request<{}, {}, UpdateRequestBodyType>, res: Response) => {
+  async (req: Request<{}, {}, UpdateRequestType>, res: Response) => {
     const userID = new Types.ObjectId(req.userID as string);
     const { fullName, username } = req.body;
     const pfp = req.file;

@@ -13,7 +13,6 @@ import {
 import multer from "multer";
 import { bucket } from "../db/connect";
 import { Types } from "mongoose";
-import fs from "fs";
 
 interface LoginRequestType {
   username: string;
