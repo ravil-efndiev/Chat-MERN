@@ -4,6 +4,7 @@ export interface MessageModelType {
   senderID: Types.ObjectId;
   receiverID: Types.ObjectId;
   message: string;
+  createdAt: Date;
 };
 
 const messageSchema = new Schema<MessageModelType>(

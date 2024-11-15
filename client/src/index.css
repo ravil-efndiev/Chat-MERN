@@ -1,10 +1,19 @@
 * {
-  margin: 0;
-  padding: 0;
 }
 
-body {
+html, body {
   background-color: #212121;
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#root {
+  max-height: 100vh;
+  position: fixed;
+  top: 0;
+  width: 100%;
 }
 
 a {
@@ -38,9 +47,11 @@ a {
 .chat-input-bar {
   display: flex;
   background-color: #303030;
-  height: 50px;
+  min-height: 60px;
+  max-height: 100px;
   align-items: center;
   width: 95%;
-  margin: 0 auto;
+  padding: 5px 0;
+  margin: 10px auto;
   border-radius: 40px;
 }

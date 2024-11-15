@@ -1,6 +1,6 @@
 export interface APIResponseMessage {
   id: string;
   message: string;
-  createdAt: Date;
+  createdAt: string;
   writtenByMe: boolean;
 }

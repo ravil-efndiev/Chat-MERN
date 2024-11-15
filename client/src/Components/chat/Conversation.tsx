@@ -1,70 +1,71 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { APIResponseMessage } from "../../types/message";
 import sendIcon from "../../assets/send-arrow.svg";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { APIResponseUser } from "../../types/user";
+import { ChatUser } from "../../types/user";
 import MessageBubble from "./MessageBubble";
 
 interface Props {
-  with: string;
+  with: ChatUser | null;
 }
 
-function Conversation({ with: otherUserID }: Props) {
+function Conversation({ with: otherUser }: Props) {
   const [messages, setMessages] = useState<APIResponseMessage[]>([]);
-  const [otherUser, setOtherUser] = useState<APIResponseUser | null>(null);
   const [newMessage, setNewMessage] = useState("");
+  const lastMessageRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    console.log(otherUserID);
-    const getUser = async () => {
-      try {
-        const res = await axios.get(
-          `http://localhost:3000/api/users/get-by-id/${otherUserID}`,
-          { withCredentials: true }
-        );
-        setOtherUser(res.data.user);
-      } catch (err) {
-        setOtherUser(null);
-        setMessages([]);
-      }
-    };
-
-    const getMessages = async () => {
-      try {
-        const res = await axios.get(
-          `http://localhost:3000/api/messages/get-all/${otherUserID}`,
-          { withCredentials: true }
-        );
+    if (!otherUser) return;
+    axios
+      .get(`http://localhost:3000/api/messages/get-all/${otherUser.id}`, {
+        withCredentials: true,
+      })
+      .then((res) => {
         setMessages(res.data.messages);
-      } catch (err) {
-        setMessages([]);
-      }
-    };
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, [otherUser]);
 
-    getUser();
-    getMessages();
-  }, [otherUserID]);
+  useEffect(() => {
+    lastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-  const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMessageChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setNewMessage(event.target.value);
   };
 
   const handleMessageSend = (event: React.FormEvent) => {
     event.preventDefault();
+    if (!otherUser) return;
     axios
       .post(
         "http://localhost:3000/api/messages/send/",
         {
           message: newMessage,
-          receiverID: otherUserID,
+          receiverID: otherUser.id,
         },
         { withCredentials: true }
       )
-      .then(() => {
+      .then((res) => {
+        setMessages((prev) => [
+          ...prev,
+          res.data.message,
+        ]);
         setNewMessage("");
-      });
+      })
+      .catch((err) => {
+        console.error(err);
+      })
   };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      handleMessageSend(event as React.FormEvent);
+    }
+  }
 
   if (!otherUser)
     return (
@@ -81,13 +82,14 @@ function Conversation({ with: otherUserID }: Props) {
     );
 
   return (
-    <Box sx={{ flex: 1 }}>
+    <Box sx={{ flex: 1, height: "100vh" }}>
       <Box
         sx={{
-          height: "calc(100% - 60px)",
+          height: `calc(100vh - 100px)`,
           width: "95%",
           mx: "auto",
-          overflow: "auto",
+          overflowY: "auto",
+          flex: 1
         }}
       >
         {otherUser?.fullName}
@@ -96,9 +98,11 @@ function Conversation({ with: otherUserID }: Props) {
             key={msg.id}
             text={msg.message}
             isSender={msg.writtenByMe}
+            createdAt={msg.createdAt}
           />
         ))}
-      </Box>
+        <div ref={lastMessageRef}></div>
+      </Box>  
       <form className="chat-input-bar" onSubmit={handleMessageSend}>
         <TextField
           variant="standard"
@@ -112,6 +116,9 @@ function Conversation({ with: otherUserID }: Props) {
           }}
           onChange={handleMessageChange}
           value={newMessage}
+          multiline
+          maxRows={3}
+          onKeyDown={handleKeyDown}
         />
         <Button
           sx={{

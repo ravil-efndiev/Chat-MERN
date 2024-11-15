@@ -5,4 +5,9 @@ export interface APIResponseUser {
   profilePicture?: string;
 }
 
+export interface ChatUser extends APIResponseUser {
+  profilePictureURL: string;
+}
+
 export type AuthUser = APIResponseUser | null;
+

@@ -47,9 +47,10 @@ router.post(
 
       res.status(201).json({
         message: {
-          senderID: senderID,
-          receiverID: receiverID,
-          message: message,
+          id: newMessage._id.toString(),
+          writtenByMe: true,
+          message: newMessage.message,
+          createdAt: newMessage.createdAt,
         }
       });
     } catch (err) {
@@ -70,7 +71,7 @@ router.get(
       const chat = await ChatModel.findOne({
         participants: { $all: [currentObjID, otherObjID] },
       }).populate<
-        { messages: (MessageModelType & { createdAt: Date, _id: Types.ObjectId })[] }
+        { messages: (MessageModelType & { _id: Types.ObjectId })[] }
       >("messages");
 
       if (!chat) {

@@ -36,7 +36,7 @@ function ProfileDrawer({ open, onClose }: Props) {
         })
         .catch((err) => console.error(err));
     }
-  }, []);
+  }, [currentUser]);
 
   const handleProfileUpdate = (event: React.FormEvent) => {
     event.preventDefault();
