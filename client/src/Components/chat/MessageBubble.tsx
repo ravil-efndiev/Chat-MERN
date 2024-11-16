@@ -1,8 +1,8 @@
 import { Box, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 
 interface Props {
-  text: string;
+  text: ReactNode;
   isSender: boolean;
   createdAt: string;
 }
@@ -32,13 +32,13 @@ function MessageBubble({ text, isSender, createdAt }: Props) {
           px: 2,
           py: 1,
           borderRadius: 2,
-          bgcolor: isSender ? "#3f51b5" : "#40404f",
+          bgcolor: isSender ? "#3f51a5" : "#40404f",
           color: "#fff",
           alignSelf: "flex-start",
           textAlign: isSender ? "right" : "left",
         }}
       >
-        <Typography>{text}</Typography>
+        {text}
         <Typography sx={{color: "#dadada", fontSize: 12}}>{createTime}</Typography>
       </Box>
     </Box>

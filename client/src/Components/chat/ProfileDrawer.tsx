@@ -101,6 +101,7 @@ function ProfileDrawer({ open, onClose }: Props) {
             variant="contained"
             color="secondary"
             type="submit"
+            disabled={!formValues.username && !formValues.fullName && !newPfp}
           >
             Submit
           </Button>
