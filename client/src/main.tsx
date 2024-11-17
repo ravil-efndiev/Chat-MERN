@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import AuthProvider from "./Components/authentication/AuthProvider";
 import ProtectedRoute from "./Components/authentication/ProtectedRoute";
 import { createTheme, ThemeProvider } from "@mui/material";
+import SocketProvider from "./Components/SocketProvider";
 
 const router = createBrowserRouter([
   {
