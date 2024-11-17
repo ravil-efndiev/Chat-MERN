@@ -51,8 +51,7 @@ function Sidebar({ onUserSelected, onDrawerOpen, onSearchMenuOpen }: Props) {
       <Box sx={{
         display: "flex",
         justifyContent: "space-between",
-        px: 2,
-        py: 1,
+        px: 2, py: 1,
       }}>
         <Button
           variant="contained"
@@ -65,7 +64,7 @@ function Sidebar({ onUserSelected, onDrawerOpen, onSearchMenuOpen }: Props) {
           onClick={() => onSearchMenuOpen()}
           src={searchImg}
           width={30}
-          alt="drawer switch"
+          alt="searchbar switch"
         />
       </Box>
       {users.map((user) => (
