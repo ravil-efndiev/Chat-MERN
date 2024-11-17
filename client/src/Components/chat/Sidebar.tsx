@@ -3,14 +3,16 @@ import { APIResponseUser, ChatUser } from "../../types/user";
 import axios from "axios";
 import { Avatar, Box, Button, Paper, Typography } from "@mui/material";
 import drawerSwitchImg from "../../assets/drawer-switch.svg";
+import searchImg from "../../assets/search.svg";
 import { getProfilePicURL } from "../../utils/requests";
 
 interface Props {
   onUserSelected: (user: ChatUser) => void;
   onDrawerOpen: () => void;
+  onSearchMenuOpen: () => void;
 }
 
-function Sidebar({ onUserSelected, onDrawerOpen }: Props) {
+function Sidebar({ onUserSelected, onDrawerOpen, onSearchMenuOpen }: Props) {
   const [users, setUsers] = useState<ChatUser[]>([]);
   const [activeUserID, setActiveUserID] = useState("");
 
@@ -45,16 +47,27 @@ function Sidebar({ onUserSelected, onDrawerOpen }: Props) {
   };
 
   return (
-    <Paper elevation={5} className="sidebar" sx={{overflowY: "auto"}}>
-      <div className="sidebar-top">
+    <Paper elevation={5} className="sidebar" sx={{ overflowY: "auto" }}>
+      <Box sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        px: 2,
+        py: 1,
+      }}>
         <Button
           variant="contained"
           onClick={() => onDrawerOpen()}
-          sx={{ minWidth: 0, p: 1, m: 1 }}
+          sx={{ minWidth: 0, p: 1 }}
         >
           <img src={drawerSwitchImg} width={30} alt="drawer switch" />
         </Button>
-      </div>
+        <img
+          onClick={() => onSearchMenuOpen()}
+          src={searchImg}
+          width={30}
+          alt="drawer switch"
+        />
+      </Box>
       {users.map((user) => (
         <div
           className={

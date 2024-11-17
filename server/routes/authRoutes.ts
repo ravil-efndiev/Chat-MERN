@@ -11,7 +11,6 @@ import {
   validateAndTrimFullname,
 } from "../utils/validation";
 import multer from "multer";
-import { bucket } from "../db/connect";
 import { Types } from "mongoose";
 
 interface LoginRequestType {
@@ -68,10 +67,9 @@ router.post(
         return;
       }
 
-      uploadProfilePic(pfp, async (fileID) => {
-        const user = await createUser(username, validFullName, passwordHash, fileID);
-        sendUserDataAndToken(user, res);
-      });
+      const fileID = await uploadProfilePic(pfp);
+      const user = await createUser(username, validFullName, passwordHash, fileID);
+      sendUserDataAndToken(user, res);
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Internal server error" });

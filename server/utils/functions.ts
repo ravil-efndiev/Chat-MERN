@@ -24,15 +24,21 @@ export function sendUserDataAndToken(user: UserDocumentType, res: Response) {
 }
 
 export function uploadProfilePic(
-  pfp: Express.Multer.File,
-  onFinished: (fileID: Types.ObjectId) => void
-) {
-  const uploadStream = bucket.openUploadStream(pfp.filename);
-  const fstream = fs.createReadStream(pfp.path);
-  fstream.pipe(uploadStream);
+  pfp: Express.Multer.File
+): Promise<Types.ObjectId> {
+  return new Promise((resole, reject) => {
+    const uploadStream = bucket.openUploadStream(pfp.filename);
+    const fstream = fs.createReadStream(pfp.path);
+    fstream.pipe(uploadStream);
 
-  uploadStream.on("finish", async () => {
-    fs.unlink(pfp.path, () => {});
-    onFinished(uploadStream.id);
+    uploadStream.on("finish", () => {
+      fs.unlink(pfp.path, () => {});
+      resole(uploadStream.id); 
+    });
+    
+    uploadStream.on("error", (err) => {
+      fs.unlink(pfp.path, () => {});
+      reject(err);
+    });
   });
 }

@@ -157,11 +157,10 @@ router.post(
       return;
     }
 
-    uploadProfilePic(pfp, async (fileID) => {
-      user.profilePicture = fileID;
-      await user.save();
-      sendUserData(user, res);
-    });
+    const fileID = await uploadProfilePic(pfp);
+    user.profilePicture = fileID;
+    await user.save();
+    sendUserData(user, res);
   }
 );
 

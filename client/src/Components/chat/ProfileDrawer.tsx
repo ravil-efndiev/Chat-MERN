@@ -15,7 +15,7 @@ function ProfileDrawer({ open, onClose }: Props) {
   const { currentUser, setCurrentUser } = useAuth();
   const [serverError, setServerError] = useState<string | null>(null);
   const [previousPfpURL, setPreviousPfpURL] = useState<string | undefined>();
-  const [newPfp, setNewPfp] = useState<File | null>();
+  const [newPfp, setNewPfp] = useState<File | null>(null);
   const { formValues, handleInputChange, resetForm } = useFormValues({
     username: "",
     fullName: "",
@@ -58,15 +58,25 @@ function ProfileDrawer({ open, onClose }: Props) {
           setCurrentUser(res.data.user);
         }
         setServerError(null);
-        resetForm();
       })
       .catch((error) => {
         setServerError(error.response.data.error);
+      })
+      .finally(() => {
+        resetForm();
+        setNewPfp(null);
       });
   };
 
   return (
-    <Drawer open={open} onClose={() => onClose()}>
+    <Drawer
+      open={open}
+      onClose={() => {
+        resetForm();
+        setNewPfp(null);
+        onClose();
+      }}
+    >
       <Box sx={{ minWidth: "20vw", py: 3 }}>
         <Typography variant="h4" sx={{ mb: 2 }}>
           Your Profile
@@ -78,7 +88,10 @@ function ProfileDrawer({ open, onClose }: Props) {
         <Typography variant="h5" sx={{ textAlign: "center" }}>
           {currentUser?.fullName}
         </Typography>
-        <form style={{maxWidth:"90%", margin: "0 auto"}} onSubmit={handleProfileUpdate}>
+        <form
+          style={{ maxWidth: "90%", margin: "0 auto" }}
+          onSubmit={handleProfileUpdate}
+        >
           <ProfilePictureUpload
             onFileChange={(file) => setNewPfp(file)}
             defaultPfpURL={previousPfpURL}
