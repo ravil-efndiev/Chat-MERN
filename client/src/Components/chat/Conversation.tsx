@@ -1,10 +1,11 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
-import { ChatMessage } from "../../types/message";
+import { APIResponseMessage, ChatMessage } from "../../types/message";
 import sendIcon from "../../assets/send-arrow.svg";
 import { useEffect, useRef, useState, ReactNode } from "react";
 import axios from "axios";
 import { ChatUser } from "../../types/user";
 import MessageBubble from "./MessageBubble";
+import { useSocket } from "../SocketProvider";
 
 interface Props {
   with: ChatUser | null;
@@ -17,6 +18,7 @@ function Conversation({ with: otherUser }: Props) {
   const [newMessage, setNewMessage] = useState("");
   const [messagesByDay, setMessagesByDay] = useState<MessagesByDay>(new Map());
   const lastMessageRef = useRef<HTMLDivElement>(null);
+  const { socket } = useSocket();
 
   useEffect(() => {
     if (!otherUser) return;
@@ -31,7 +33,21 @@ function Conversation({ with: otherUser }: Props) {
       .catch((err) => {
         console.error(err);
       });
-  }, [otherUser]);
+
+    const handleMessageRecieve = (msg: { message: APIResponseMessage }) => {
+      setMessages((prev) => {
+        return formatMessages([
+          ...prev,
+          msg.message,
+        ])
+      });
+    }
+
+    socket?.on("message", handleMessageRecieve);
+
+    return () => {socket?.off("message", handleMessageRecieve)};
+
+  }, [otherUser, socket]);
 
   useEffect(() => {
     groupMessagesByDate();
@@ -69,7 +85,7 @@ function Conversation({ with: otherUser }: Props) {
     });
   };
 
-  const renderGroupedMessage = () => {
+  const renderGroupedMessages = () => {
     let finalNode: ReactNode[] = [];
     messagesByDay.forEach((messages, day) => {
       finalNode.push(
@@ -162,7 +178,7 @@ function Conversation({ with: otherUser }: Props) {
           flex: 1,
         }}
       >
-        {renderGroupedMessage()}
+        {renderGroupedMessages()}
         <div ref={lastMessageRef}></div>
       </Box>
       <form className="chat-input-bar" onSubmit={handleMessageSend}>

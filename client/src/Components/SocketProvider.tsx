@@ -32,6 +32,7 @@ function SocketProvider({ children }: PropsWithChildren) {
         query: {
           userID: currentUser.id,
         },
+        withCredentials: true,
       })
     );
 

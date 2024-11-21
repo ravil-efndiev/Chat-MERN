@@ -3,6 +3,8 @@ import checkAuthStatus from "../middleware/checkAuthStatus";
 import ChatModel, { ChatModelType } from "../db/models/chatModel";
 import { Types } from "mongoose";
 import MessageModel, { MessageModelType } from "../db/models/messageModel";
+import { io, userSocketIDs } from "../server";
+import { createRespMessage } from "../utils/functions";
 
 interface SendMessageRequestType {
   message: string;
@@ -45,14 +47,15 @@ router.post(
       chat.messages.push(newMessage._id);
       await chat.save();
 
-      res.status(201).json({
-        message: {
-          id: newMessage._id.toString(),
-          writtenByMe: true,
-          message: newMessage.message,
-          createdAt: newMessage.createdAt,
-        }
-      });
+      const socketID = userSocketIDs.get(receiverID);
+      if (!socketID) {
+        res.status(404).json({ error: "User isnt connected to socket" });
+        return;
+      }
+
+      io.to(socketID).emit("message", createRespMessage(newMessage, false))
+
+      res.status(201).json(createRespMessage(newMessage, true));
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Internal server error" });

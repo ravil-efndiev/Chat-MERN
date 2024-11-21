@@ -11,7 +11,8 @@ async function connectDB() {
     const connection = mongoose.connection;
     bucket = new GridFSBucket(connection.db as Db, {
       bucketName: "profilePictures",
-    })
+    });
+    console.log("db connected");
   }
   catch (err) {
     console.error(err);
