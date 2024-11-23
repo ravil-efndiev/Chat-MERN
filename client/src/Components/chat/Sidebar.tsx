@@ -1,18 +1,36 @@
 import { useEffect, useState } from "react";
 import { APIResponseUser, ChatUser } from "../../types/user";
 import axios from "axios";
-import { Avatar, Box, Button, Paper, Typography } from "@mui/material";
+import { Box, Button, Paper } from "@mui/material";
 import drawerSwitchImg from "../../assets/drawer-switch.svg";
 import searchImg from "../../assets/search.svg";
 import { getProfilePicURL } from "../../utils/requests";
+import UserDisplay from "./UserDisplay";
+
+export function setUserPfps(users: APIResponseUser[]) {
+  return users.map(
+    async (user): Promise<ChatUser> => ({
+      ...user,
+      profilePictureURL: user.profilePicture
+        ? await getProfilePicURL(user.profilePicture)
+        : "",
+    })
+  );
+}
 
 interface Props {
   onUserSelected: (user: ChatUser) => void;
   onDrawerOpen: () => void;
   onSearchMenuOpen: () => void;
+  newChatID: string | null;
 }
 
-function Sidebar({ onUserSelected, onDrawerOpen, onSearchMenuOpen }: Props) {
+function Sidebar({
+  onUserSelected,
+  onDrawerOpen,
+  onSearchMenuOpen,
+  newChatID,
+}: Props) {
   const [users, setUsers] = useState<ChatUser[]>([]);
   const [activeUserID, setActiveUserID] = useState("");
 
@@ -24,14 +42,7 @@ function Sidebar({ onUserSelected, onDrawerOpen, onSearchMenuOpen }: Props) {
           { withCredentials: true }
         );
         const resUsers: APIResponseUser[] = usersRes.data.users;
-        const usersWithPfps = resUsers.map(
-          async (user): Promise<ChatUser> => ({
-            ...user,
-            profilePictureURL: user.profilePicture
-              ? await getProfilePicURL(user.profilePicture)
-              : "",
-          })
-        );
+        const usersWithPfps = setUserPfps(resUsers);
         setUsers(await Promise.all(usersWithPfps));
       } catch (err) {
         console.error(err);
@@ -39,7 +50,18 @@ function Sidebar({ onUserSelected, onDrawerOpen, onSearchMenuOpen }: Props) {
     };
 
     getUsersAndPfps();
-  }, []);
+
+    if (newChatID) {
+      axios
+        .get(`http://localhost:3000/api/users/get-by-id/${newChatID}`, {
+          withCredentials: true,
+        })
+        .then((res) => {
+          onUserSelected(res.data.user);
+          setActiveUserID(newChatID);
+        })
+    }
+  }, [newChatID]);
 
   const handleUserClick = (user: ChatUser) => {
     onUserSelected(user);
@@ -48,11 +70,13 @@ function Sidebar({ onUserSelected, onDrawerOpen, onSearchMenuOpen }: Props) {
 
   return (
     <Paper elevation={5} className="sidebar" sx={{ overflowY: "auto" }}>
-      <Box sx={{
-        display: "flex",
-        justifyContent: "space-between",
-        px: 2, py: 1,
-      }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          px: 2, py: 1,
+        }}
+      >
         <Button
           variant="contained"
           onClick={() => onDrawerOpen()}
@@ -65,6 +89,7 @@ function Sidebar({ onUserSelected, onDrawerOpen, onSearchMenuOpen }: Props) {
           src={searchImg}
           width={30}
           alt="searchbar switch"
+          style={{cursor: "pointer"}}
         />
       </Box>
       {users.map((user) => (
@@ -77,20 +102,7 @@ function Sidebar({ onUserSelected, onDrawerOpen, onSearchMenuOpen }: Props) {
           key={user.id}
           onClick={() => handleUserClick(user)}
         >
-          <Avatar src={user.profilePictureURL} sx={{ width: 60, height: 60 }} />
-          <Box
-            sx={{
-              ml: 2,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-            }}
-          >
-            <Typography>{user.fullName}</Typography>
-            <Typography sx={{ fontWeight: 100, fontSize: 16, color: "#ccc" }}>
-              some text
-            </Typography>
-          </Box>
+          <UserDisplay user={user} />
         </div>
       ))}
     </Paper>

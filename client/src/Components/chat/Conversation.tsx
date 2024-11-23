@@ -9,9 +9,10 @@ import { useSocket } from "../SocketProvider";
 
 interface Props {
   with: ChatUser | null;
+  onChatCreate: (userID: string) => void;
 }
 
-function Conversation({ with: otherUser }: Props) {
+function Conversation({ with: otherUser, onChatCreate }: Props) {
   type MessagesByDay = Map<string, ChatMessage[]>;
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -30,23 +31,23 @@ function Conversation({ with: otherUser }: Props) {
         const formatted = formatMessages(res.data.messages);
         setMessages(formatted);
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
+        setMessages([]);
       });
 
-    const handleMessageRecieve = (msg: { message: APIResponseMessage }) => {
-      setMessages((prev) => {
-        return formatMessages([
-          ...prev,
-          msg.message,
-        ])
-      });
-    }
+    const handleMessageRecieve = (msg: { senderID: string, message: APIResponseMessage }) => {
+      if (msg.senderID === otherUser.id) {
+        setMessages((prev) => {
+          return formatMessages([...prev, msg.message]);
+        });
+      }
+    };
 
     socket?.on("message", handleMessageRecieve);
 
-    return () => {socket?.off("message", handleMessageRecieve)};
-
+    return () => {
+      socket?.off("message", handleMessageRecieve);
+    };
   }, [otherUser, socket]);
 
   useEffect(() => {
@@ -119,13 +120,16 @@ function Conversation({ with: otherUser }: Props) {
     return finalNode;
   };
 
-  const handleMessageChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleMessageChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
     setNewMessage(event.target.value);
   };
 
   const handleMessageSend = (event: React.FormEvent) => {
     event.preventDefault();
     if (!otherUser) return;
+
     axios
       .post(
         "http://localhost:3000/api/messages/send/",
@@ -136,6 +140,9 @@ function Conversation({ with: otherUser }: Props) {
         { withCredentials: true }
       )
       .then((res) => {
+        if (messages.length <= 0) {
+          onChatCreate(otherUser.id);
+        }    
         setMessages((prev) => {
           const newMesssages = [...prev, res.data.message];
           return formatMessages(newMesssages);
@@ -153,34 +160,39 @@ function Conversation({ with: otherUser }: Props) {
     }
   };
 
-  if (!otherUser)
-    return (
-      <Box
-        sx={{ height: "100vh", flex: 1, display: "flex", alignItems: "center" }}
+  const chatPlaceholder = (text: string, fullHeight: boolean): React.ReactNode => (
+    <Box
+      sx={{ height: fullHeight ? "100vh" : "85vh", flex: 1, display: "flex", alignItems: "center" }}
+    >
+      <Typography
+        sx={{ color: "#fff", textAlign: "center", width: "100%" }}
+        variant="h6"
       >
-        <Typography
-          sx={{ color: "#fff", textAlign: "center", width: "100%" }}
-          variant="h6"
-        >
-          Select someone to start chatting
-        </Typography>
-      </Box>
-    );
+        {text}
+      </Typography>
+    </Box>
+  );
+
+  if (!otherUser) return chatPlaceholder("Select someone to start chatting", true);
 
   return (
     <Box sx={{ flex: 1, height: "100vh" }}>
-      <Box
-        sx={{
-          height: `calc(100vh - 100px)`,
-          mx: "auto",
-          px: 4,
-          overflowY: "auto",
-          flex: 1,
-        }}
-      >
-        {renderGroupedMessages()}
-        <div ref={lastMessageRef}></div>
-      </Box>
+      {messages.length > 0 ? (
+        <Box
+          sx={{
+            height: `calc(100vh - 100px)`,
+            mx: "auto",
+            px: 4,
+            overflowY: "auto",
+            flex: 1,
+          }}
+        >
+          {renderGroupedMessages()}
+          <div ref={lastMessageRef}></div>
+        </Box>
+      ) : (
+        chatPlaceholder("No messages here yet", false)
+      )}
       <form className="chat-input-bar" onSubmit={handleMessageSend}>
         <TextField
           variant="standard"

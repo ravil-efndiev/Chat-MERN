@@ -1,14 +1,29 @@
 import { Router, Request, Response } from "express";
 import checkAuthStatus from "../middleware/checkAuthStatus";
-import ChatModel, { ChatModelType } from "../db/models/chatModel";
+import ChatModel from "../db/models/chatModel";
 import { Types } from "mongoose";
 import MessageModel, { MessageModelType } from "../db/models/messageModel";
 import { io, userSocketIDs } from "../server";
-import { createRespMessage } from "../utils/functions";
 
 interface SendMessageRequestType {
   message: string;
   receiverID: string;
+}
+
+type MessageDocumentType = MessageModelType & { _id: Types.ObjectId };
+
+function createRespMessage(
+  message: MessageDocumentType,
+  writtenByMe: boolean
+) {
+  return {
+    message: {
+      id: message._id.toString(),
+      message: message.message,
+      createdAt: message.createdAt,
+      writtenByMe: writtenByMe,
+    },
+  };
 }
 
 const router = Router();
@@ -48,12 +63,13 @@ router.post(
       await chat.save();
 
       const socketID = userSocketIDs.get(receiverID);
-      if (!socketID) {
-        res.status(404).json({ error: "User isnt connected to socket" });
-        return;
-      }
 
-      io.to(socketID).emit("message", createRespMessage(newMessage, false))
+      if (socketID) {
+        io.to(socketID).emit("message", {
+          senderID: senderID,
+          ...createRespMessage(newMessage, false),
+        });
+      }
 
       res.status(201).json(createRespMessage(newMessage, true));
     } catch (err) {

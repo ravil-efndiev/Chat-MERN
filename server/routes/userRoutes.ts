@@ -43,24 +43,34 @@ router.get(
 );
 
 router.get(
-  "/get-by-username/:username",
+  "/get-by-username/:usernameSubstr",
   checkAuthStatus,
   async (req: Request, res: Response) => {
     try {
-      const { username } = req.params;
+      const { usernameSubstr } = req.params;
       const userID = new Types.ObjectId(req.userID);
 
-      const user = await UserModel.findOne({
-        username: username,
+      const users = await UserModel.find({
+        username: {
+          $regex: `^${usernameSubstr}`,
+          $options: "i",
+        },
         _id: { $ne: userID },
       });
 
-      if (!user) {
-        res.status(404).json({ error: "User not found" });
+      if (users.length <= 0) {
+        res.status(404).json({ error: "No users found" });
         return;
       }
 
-      sendUserData(user, res);
+      res.status(200).json({ 
+        users: users.map((userDoc) => ({
+          id: userDoc._id.toString(),
+          username: userDoc.username,
+          fullName: userDoc.fullName,
+          profilePicture: userDoc.profilePicture?.toString(),
+        }))
+      });
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Internal server error" });

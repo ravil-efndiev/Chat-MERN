@@ -9,7 +9,10 @@ import SearchMenu from "../Components/chat/SearchMenu";
 function Chat() {
   const [activeUser, setActiveUser] = useState<ChatUser | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [searchMenuOpen, setsearchMenuOpen] = useState(false);
+  const [searchMenuOpen, setSearchMenuOpen] = useState(false);
+  const [newChatID, setNewChatID] = useState<string | null>(null);
+
+  const handleUserSelect = (user: ChatUser) => setActiveUser(user);
 
   return (
     <>
@@ -21,13 +24,22 @@ function Chat() {
           }}
         />
         <Sidebar
-          onUserSelected={(user) => setActiveUser(user)}
+          onUserSelected={handleUserSelect}
           onDrawerOpen={() => setDrawerOpen(true)}
-          onSearchMenuOpen={() => setsearchMenuOpen(true)}
+          onSearchMenuOpen={() => setSearchMenuOpen(true)}
+          newChatID={newChatID}
         />
-        <Conversation with={activeUser} />
+        <Conversation 
+          with={activeUser} 
+          onChatCreate={(id) => setNewChatID(id)}
+        />
       </Box>
-      {searchMenuOpen && <SearchMenu />}
+      {searchMenuOpen && (
+        <SearchMenu
+          onClose={() => setSearchMenuOpen(false)}
+          onUserSelect={handleUserSelect}
+        />
+      )}
     </>
   );
 }

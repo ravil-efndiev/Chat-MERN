@@ -4,10 +4,8 @@ import { Types } from "mongoose";
 import { sendAuthToken } from "./token";
 import { bucket } from "../db/connect";
 import fs from "fs";
-import { MessageModelType } from "../db/models/messageModel";
 
 type UserDocumentType = UserModelType & { _id: Types.ObjectId };
-type MessageDocumentType = MessageModelType & { _id: Types.ObjectId };
 
 export function sendUserData(user: UserDocumentType, res: Response) {
   res.status(200).json({
@@ -18,20 +16,6 @@ export function sendUserData(user: UserDocumentType, res: Response) {
       profilePicture: user.profilePicture?.toString(),
     },
   });
-}
-
-export function createRespMessage(
-  message: MessageDocumentType,
-  writtenByMe: boolean
-) {
-  return {
-    message: {
-      id: message._id.toString(),
-      message: message.message,
-      createdAt: message.createdAt,
-      writtenByMe: writtenByMe,
-    },
-  };
 }
 
 export function sendUserDataAndToken(user: UserDocumentType, res: Response) {
