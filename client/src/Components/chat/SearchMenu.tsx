@@ -5,15 +5,16 @@ import { useEffect, useRef, useState } from "react";
 import { APIResponseUser, ChatUser } from "../../types/user";
 import { setUserPfps } from "./Sidebar";
 import UserDisplay from "./UserDisplay";
+import { useSelectedUserID } from "../../pages/Chat";
 
 interface Props {
   onClose: () => void;
-  onUserSelect: (user: ChatUser) => void;
 }
 
-function SearchMenu({ onClose, onUserSelect }: Props) {
+function SearchMenu({ onClose }: Props) {
   const [foundUsers, setFoundUsers] = useState<ChatUser[]>([]);
   const searchMenuRef = useRef<HTMLDivElement>(null);
+  const { setSelectedUserID } = useSelectedUserID();
 
   const { handleInputChange } = useDebounce((value) => {
     if (!value) {
@@ -51,7 +52,7 @@ function SearchMenu({ onClose, onUserSelect }: Props) {
   }, []);
   
   const handleUserClick = (user: ChatUser) => {
-    onUserSelect(user);
+    setSelectedUserID(user.id);
     onClose();
   }
 
@@ -91,6 +92,7 @@ function SearchMenu({ onClose, onUserSelect }: Props) {
               cursor: "pointer",
               ":hover": { bgcolor: "#303030" },
             }}
+            key={user.id}
             onClick={() => handleUserClick(user)}
           >
             <UserDisplay user={user} />

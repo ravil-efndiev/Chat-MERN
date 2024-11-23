@@ -16,7 +16,6 @@ export const { io, server } = createSocket(app);
 export const userSocketIDs = new Map<string, string>();
 
 io.on("connection", (socket) => {
-  console.log(socket.id);
   const userID = socket.handshake.query.userID as string | undefined;
 
   if (userID) {
@@ -24,7 +23,9 @@ io.on("connection", (socket) => {
   }
 
   io.on("disconnect", () => {
-    console.log("disconnected");
+    if (userID) {
+      userSocketIDs.delete(userID);
+    }
   });
 });
 

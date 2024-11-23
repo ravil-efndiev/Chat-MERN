@@ -6,6 +6,7 @@ import drawerSwitchImg from "../../assets/drawer-switch.svg";
 import searchImg from "../../assets/search.svg";
 import { getProfilePicURL } from "../../utils/requests";
 import UserDisplay from "./UserDisplay";
+import { useSelectedUserID } from "../../pages/Chat";
 
 export function setUserPfps(users: APIResponseUser[]) {
   return users.map(
@@ -19,20 +20,17 @@ export function setUserPfps(users: APIResponseUser[]) {
 }
 
 interface Props {
-  onUserSelected: (user: ChatUser) => void;
   onDrawerOpen: () => void;
   onSearchMenuOpen: () => void;
-  newChatID: string | null;
 }
 
 function Sidebar({
-  onUserSelected,
   onDrawerOpen,
   onSearchMenuOpen,
-  newChatID,
 }: Props) {
   const [users, setUsers] = useState<ChatUser[]>([]);
   const [activeUserID, setActiveUserID] = useState("");
+  const { selectedUserID, setSelectedUserID } = useSelectedUserID();
 
   useEffect(() => {
     const getUsersAndPfps = async () => {
@@ -51,20 +49,13 @@ function Sidebar({
 
     getUsersAndPfps();
 
-    if (newChatID) {
-      axios
-        .get(`http://localhost:3000/api/users/get-by-id/${newChatID}`, {
-          withCredentials: true,
-        })
-        .then((res) => {
-          onUserSelected(res.data.user);
-          setActiveUserID(newChatID);
-        })
+    if (selectedUserID) {
+      setActiveUserID(selectedUserID);
     }
-  }, [newChatID]);
+  }, [selectedUserID]);
 
   const handleUserClick = (user: ChatUser) => {
-    onUserSelected(user);
+    setSelectedUserID(user.id);
     setActiveUserID(user.id);
   };
 

@@ -1,47 +1,58 @@
 import { Box } from "@mui/material";
 import Sidebar from "../Components/chat/Sidebar";
-import { useState } from "react";
+import {
+  createContext,
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useState,
+} from "react";
 import Conversation from "../Components/chat/Conversation";
 import ProfileDrawer from "../Components/chat/ProfileDrawer";
-import { ChatUser } from "../types/user";
 import SearchMenu from "../Components/chat/SearchMenu";
 
+interface SelectedUserContextType {
+  selectedUserID: string;
+  setSelectedUserID: Dispatch<SetStateAction<string>>;
+}
+
+const SelectedUserIDContext = createContext<SelectedUserContextType | undefined>(undefined);
+
 function Chat() {
-  const [activeUser, setActiveUser] = useState<ChatUser | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchMenuOpen, setSearchMenuOpen] = useState(false);
-  const [newChatID, setNewChatID] = useState<string | null>(null);
-
-  const handleUserSelect = (user: ChatUser) => setActiveUser(user);
+  const [selectedUserID, setSelectedUserID] = useState("");
 
   return (
-    <>
+    <SelectedUserIDContext.Provider
+      value={{ selectedUserID, setSelectedUserID }}
+    >
       <Box sx={{ display: "flex", height: "100%", width: "100%" }}>
         <ProfileDrawer
           open={drawerOpen}
-          onClose={() => {
-            setDrawerOpen(false);
-          }}
+          onClose={() => setDrawerOpen(false)}
         />
         <Sidebar
-          onUserSelected={handleUserSelect}
           onDrawerOpen={() => setDrawerOpen(true)}
           onSearchMenuOpen={() => setSearchMenuOpen(true)}
-          newChatID={newChatID}
         />
-        <Conversation 
-          with={activeUser} 
-          onChatCreate={(id) => setNewChatID(id)}
-        />
+        <Conversation with={selectedUserID} />
       </Box>
       {searchMenuOpen && (
-        <SearchMenu
-          onClose={() => setSearchMenuOpen(false)}
-          onUserSelect={handleUserSelect}
-        />
+        <SearchMenu onClose={() => setSearchMenuOpen(false)} />
       )}
-    </>
+    </SelectedUserIDContext.Provider>
   );
+}
+
+export function useSelectedUserID() {
+  const context = useContext(SelectedUserIDContext);
+
+  if (!context) {
+    throw new Error("Context should be only used inside it's provider");
+  }
+
+  return context;
 }
 
 export default Chat;

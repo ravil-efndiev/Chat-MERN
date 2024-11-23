@@ -3,16 +3,15 @@ import { APIResponseMessage, ChatMessage } from "../../types/message";
 import sendIcon from "../../assets/send-arrow.svg";
 import { useEffect, useRef, useState, ReactNode } from "react";
 import axios from "axios";
-import { ChatUser } from "../../types/user";
 import MessageBubble from "./MessageBubble";
 import { useSocket } from "../SocketProvider";
+import { useSelectedUserID } from "../../pages/Chat";
 
 interface Props {
-  with: ChatUser | null;
-  onChatCreate: (userID: string) => void;
+  with: string;
 }
 
-function Conversation({ with: otherUser, onChatCreate }: Props) {
+function Conversation({ with: otherUserID }: Props) {
   type MessagesByDay = Map<string, ChatMessage[]>;
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -20,11 +19,12 @@ function Conversation({ with: otherUser, onChatCreate }: Props) {
   const [messagesByDay, setMessagesByDay] = useState<MessagesByDay>(new Map());
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const { socket } = useSocket();
+  const { setSelectedUserID } = useSelectedUserID();
 
   useEffect(() => {
-    if (!otherUser) return;
+    if (!otherUserID) return;
     axios
-      .get(`http://localhost:3000/api/messages/get-all/${otherUser.id}`, {
+      .get(`http://localhost:3000/api/messages/get-all/${otherUserID}`, {
         withCredentials: true,
       })
       .then((res) => {
@@ -36,7 +36,7 @@ function Conversation({ with: otherUser, onChatCreate }: Props) {
       });
 
     const handleMessageRecieve = (msg: { senderID: string, message: APIResponseMessage }) => {
-      if (msg.senderID === otherUser.id) {
+      if (msg.senderID === otherUserID) {
         setMessages((prev) => {
           return formatMessages([...prev, msg.message]);
         });
@@ -48,7 +48,7 @@ function Conversation({ with: otherUser, onChatCreate }: Props) {
     return () => {
       socket?.off("message", handleMessageRecieve);
     };
-  }, [otherUser, socket]);
+  }, [otherUserID, socket]);
 
   useEffect(() => {
     groupMessagesByDate();
@@ -86,6 +86,59 @@ function Conversation({ with: otherUser, onChatCreate }: Props) {
     });
   };
 
+  const handleMessageChange = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    setNewMessage(event.target.value);
+  };
+
+  const handleMessageSend = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!otherUserID) return;
+
+    axios
+      .post(
+        "http://localhost:3000/api/messages/send/",
+        {
+          message: newMessage,
+          receiverID: otherUserID,
+        },
+        { withCredentials: true }
+      )
+      .then((res) => {
+        if (messages.length <= 0) {
+          setSelectedUserID(otherUserID);
+        }
+        setMessages((prev) => {
+          const newMesssages = [...prev, res.data.message];
+          return formatMessages(newMesssages);
+        });
+        setNewMessage("");
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter" && !event.shiftKey) {
+      handleMessageSend(event as React.FormEvent);
+    }
+  };
+
+  const chatPlaceholder = (text: string, fullHeight: boolean): React.ReactNode => (
+    <Box
+      sx={{ height: fullHeight ? "100vh" : "85vh", flex: 1, display: "flex", alignItems: "center" }}
+    >
+      <Typography
+        sx={{ color: "#fff", textAlign: "center", width: "100%" }}
+        variant="h6"
+      >
+        {text}
+      </Typography>
+    </Box>
+  );
+
   const renderGroupedMessages = () => {
     let finalNode: ReactNode[] = [];
     messagesByDay.forEach((messages, day) => {
@@ -120,60 +173,7 @@ function Conversation({ with: otherUser, onChatCreate }: Props) {
     return finalNode;
   };
 
-  const handleMessageChange = (
-    event: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    setNewMessage(event.target.value);
-  };
-
-  const handleMessageSend = (event: React.FormEvent) => {
-    event.preventDefault();
-    if (!otherUser) return;
-
-    axios
-      .post(
-        "http://localhost:3000/api/messages/send/",
-        {
-          message: newMessage,
-          receiverID: otherUser.id,
-        },
-        { withCredentials: true }
-      )
-      .then((res) => {
-        if (messages.length <= 0) {
-          onChatCreate(otherUser.id);
-        }    
-        setMessages((prev) => {
-          const newMesssages = [...prev, res.data.message];
-          return formatMessages(newMesssages);
-        });
-        setNewMessage("");
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-      handleMessageSend(event as React.FormEvent);
-    }
-  };
-
-  const chatPlaceholder = (text: string, fullHeight: boolean): React.ReactNode => (
-    <Box
-      sx={{ height: fullHeight ? "100vh" : "85vh", flex: 1, display: "flex", alignItems: "center" }}
-    >
-      <Typography
-        sx={{ color: "#fff", textAlign: "center", width: "100%" }}
-        variant="h6"
-      >
-        {text}
-      </Typography>
-    </Box>
-  );
-
-  if (!otherUser) return chatPlaceholder("Select someone to start chatting", true);
+  if (!otherUserID) return chatPlaceholder("Select someone to start chatting", true);
 
   return (
     <Box sx={{ flex: 1, height: "100vh" }}>
