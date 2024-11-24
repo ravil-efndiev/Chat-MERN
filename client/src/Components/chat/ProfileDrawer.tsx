@@ -5,6 +5,8 @@ import ProfilePictureUpload from "../ProfilePictureUpload";
 import axios from "axios";
 import Input from "../Input";
 import useFormValues from "../../hooks/useFormValues";
+import { getProfilePicURL } from "../../utils/requests";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   open: boolean;
@@ -12,6 +14,7 @@ interface Props {
 }
 
 function ProfileDrawer({ open, onClose }: Props) {
+  const navigate = useNavigate();
   const { currentUser, setCurrentUser } = useAuth();
   const [serverError, setServerError] = useState<string | null>(null);
   const [previousPfpURL, setPreviousPfpURL] = useState<string | undefined>();
@@ -23,16 +26,9 @@ function ProfileDrawer({ open, onClose }: Props) {
 
   useEffect(() => {
     if (currentUser?.profilePicture) {
-      axios
-        .get(
-          `http://localhost:3000/api/users/profile-picture/${currentUser.profilePicture}`,
-          {
-            responseType: "blob",
-            withCredentials: true,
-          }
-        )
-        .then((res) => {
-          setPreviousPfpURL(URL.createObjectURL(res.data));
+      getProfilePicURL(currentUser.profilePicture)
+        .then((url) => {
+          setPreviousPfpURL(url);
         })
         .catch((err) => console.error(err));
     }
@@ -65,6 +61,17 @@ function ProfileDrawer({ open, onClose }: Props) {
       .finally(() => {
         resetForm();
         setNewPfp(null);
+      });
+  };
+
+  const handleLogout = () => {
+    axios
+      .post(
+        "http://localhost:3000/api/auth/logout", {},
+        { withCredentials: true }
+      )
+      .then(() => {
+        navigate("/login");
       });
   };
 
@@ -125,6 +132,9 @@ function ProfileDrawer({ open, onClose }: Props) {
           )}
         </form>
       </Box>
+      <Button color="secondary" sx={{ mt: "auto" }} onClick={handleLogout}>
+        Log Out
+      </Button>
     </Drawer>
   );
 }

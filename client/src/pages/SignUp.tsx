@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Box, Button, Typography } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
 import { useAuth } from "../Components/authentication/AuthProvider";
@@ -46,7 +46,6 @@ function SignUp() {
         navigate("/");
       })
       .catch((error) => {
-        console.error(error);
         setServerError(error.response.data.error);
       });
   };
@@ -85,6 +84,9 @@ function SignUp() {
           Sign Up
         </Button>
       </form>
+      <Typography sx={{ fontWeight: 100, fontSize: 14, mt: 4 }}>
+        Already have an account? <Link to="/login">Log In</Link>
+      </Typography>
       {serverError && <Typography sx={{color: "#b71d1d"}}>{serverError}</Typography>}
     </FormWrapper>
   );

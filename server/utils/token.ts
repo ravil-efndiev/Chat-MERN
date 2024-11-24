@@ -14,6 +14,7 @@ export function sendAuthToken(id: string, res: Response) {
     httpOnly: true,
     secure: process.env.DEV_MODE !== "true",
     maxAge: 14 * 24 * 60 * 60 * 1000,
+    path: "/",
   });
 }
 
@@ -21,5 +22,7 @@ export function clearToken(res: Response) {
   res.cookie("authToken", "", { 
     maxAge: 0,
     httpOnly: true,
+    secure: process.env.DEV_MODE !== "true",
+    path: "/",
   });
 }
