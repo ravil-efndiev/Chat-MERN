@@ -9,9 +9,10 @@ import { useSelectedUserID } from "../../pages/Chat";
 
 interface Props {
   with: string;
+  refreshChatList: () => void;
 }
 
-function Conversation({ with: otherUserID }: Props) {
+function Conversation({ with: otherUserID, refreshChatList }: Props) {
   type MessagesByDay = Map<string, ChatMessage[]>;
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -22,7 +23,7 @@ function Conversation({ with: otherUserID }: Props) {
   const { setSelectedUserID } = useSelectedUserID();
 
   useEffect(() => {
-    if (!otherUserID) return;
+    if (!otherUserID || !socket) return;
     axios
       .get(`http://localhost:3000/api/messages/get-all/${otherUserID}`, {
         withCredentials: true,
@@ -43,10 +44,10 @@ function Conversation({ with: otherUserID }: Props) {
       }
     };
 
-    socket?.on("message", handleMessageRecieve);
+    socket.on("message", handleMessageRecieve);
 
     return () => {
-      socket?.off("message", handleMessageRecieve);
+      socket.off("message", handleMessageRecieve);
     };
   }, [otherUserID, socket]);
 
@@ -110,6 +111,10 @@ function Conversation({ with: otherUserID }: Props) {
           setSelectedUserID(otherUserID);
         }
         setMessages((prev) => {
+          if (prev.length === 0) {
+            refreshChatList();
+            console.log("Rraarwr");
+          }
           const newMesssages = [...prev, res.data.message];
           return formatMessages(newMesssages);
         });

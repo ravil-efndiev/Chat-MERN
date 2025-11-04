@@ -16,27 +16,32 @@ interface SelectedUserContextType {
   setSelectedUserID: Dispatch<SetStateAction<string>>;
 }
 
-const SelectedUserIDContext = createContext<SelectedUserContextType | undefined>(undefined);
+const SelectedUserIDContext = createContext<
+  SelectedUserContextType | undefined
+>(undefined);
 
 function Chat() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchMenuOpen, setSearchMenuOpen] = useState(false);
   const [selectedUserID, setSelectedUserID] = useState("");
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const refreshChatList = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
 
   return (
     <SelectedUserIDContext.Provider
       value={{ selectedUserID, setSelectedUserID }}
     >
       <Box sx={{ display: "flex", height: "100%", width: "100%" }}>
-        <ProfileDrawer
-          open={drawerOpen}
-          onClose={() => setDrawerOpen(false)}
-        />
+        <ProfileDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
         <Sidebar
           onDrawerOpen={() => setDrawerOpen(true)}
           onSearchMenuOpen={() => setSearchMenuOpen(true)}
+          listRefreshTrigger={refreshTrigger}
         />
-        <Conversation with={selectedUserID} />
+        <Conversation refreshChatList={refreshChatList} with={selectedUserID} />
       </Box>
       {searchMenuOpen && (
         <SearchMenu onClose={() => setSearchMenuOpen(false)} />

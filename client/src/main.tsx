@@ -9,6 +9,7 @@ import AuthProvider from "./Components/authentication/AuthProvider";
 import ProtectedRoute from "./Components/authentication/ProtectedRoute";
 import { createTheme, ThemeProvider } from "@mui/material";
 import SocketProvider from "./Components/SocketProvider";
+import NotFound from "./pages/NotFound";
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
     path: "/login",
     element: <Login />,
   },
+  {
+    path: "*",
+    element: <NotFound />
+  }
 ]);
 
 const theme = createTheme({
