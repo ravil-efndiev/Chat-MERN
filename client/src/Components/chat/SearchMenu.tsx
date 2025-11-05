@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { APIResponseUser, ChatUser } from "../../types/user";
 import { setUserPfps } from "./Sidebar";
 import UserDisplay from "./UserDisplay";
-import { useSelectedUserID } from "../../pages/Chat";
+import { useMobileWindowInfo, useSelectedUserID } from "../../pages/Chat";
 import { api } from "../../main";
 import cancelCross from "../../assets/cancel-cross.svg";
 
@@ -16,6 +16,7 @@ function SearchMenu({ onClose }: Props) {
   const [foundUsers, setFoundUsers] = useState<ChatUser[]>([]);
   const searchMenuRef = useRef<HTMLDivElement>(null);
   const { setSelectedUserID } = useSelectedUserID();
+  const { isWindowMobile, setConversationVisible } = useMobileWindowInfo();
 
   const { handleInputChange } = useDebounce((value) => {
     if (!value) {
@@ -52,6 +53,9 @@ function SearchMenu({ onClose }: Props) {
 
   const handleUserClick = (user: ChatUser) => {
     setSelectedUserID(user.id);
+    if (isWindowMobile) {
+      setConversationVisible(true);
+    }
     onClose();
   };
 

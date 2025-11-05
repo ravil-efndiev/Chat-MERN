@@ -15,6 +15,7 @@ export function sendAuthToken(id: string, res: Response) {
     secure: process.env.DEV_MODE !== "true",
     maxAge: 14 * 24 * 60 * 60 * 1000,
     path: "/",
+    sameSite: process.env.DEV_MODE === "true" ? "none" : "lax",
   });
 }
 
@@ -24,5 +25,6 @@ export function clearToken(res: Response) {
     httpOnly: true,
     secure: process.env.DEV_MODE !== "true",
     path: "/",
+    sameSite: process.env.DEV_MODE === "true" ? "none" : "lax",
   });
 }
