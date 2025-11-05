@@ -12,11 +12,6 @@ a {
   color: #ce93d8;
 }
 
-.sidebar {
-  width: 25vw;
-  height: 100vh;
-}
-
 .sidebar-user {
   display: flex;
   padding: 15px;

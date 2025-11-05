@@ -28,7 +28,7 @@ function SocketProvider({ children }: PropsWithChildren) {
     }
 
     setSocket(
-      io("http://localhost:3000", {
+      io(import.meta.env.VITEVITE_API_BASE_URL, {
         query: {
           userID: currentUser.id,
         },

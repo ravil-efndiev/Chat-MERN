@@ -1,11 +1,12 @@
 import { Box, TextField } from "@mui/material";
 import useDebounce from "../../hooks/useDebounce";
-import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { APIResponseUser, ChatUser } from "../../types/user";
 import { setUserPfps } from "./Sidebar";
 import UserDisplay from "./UserDisplay";
 import { useSelectedUserID } from "../../pages/Chat";
+import { api } from "../../main";
+import cancelCross from "../../assets/cancel-cross.svg";
 
 interface Props {
   onClose: () => void;
@@ -22,10 +23,8 @@ function SearchMenu({ onClose }: Props) {
       return;
     }
 
-    axios
-      .get(`http://localhost:3000/api/users/get-by-username/${value}`, {
-        withCredentials: true,
-      })
+    api
+      .get(`/api/users/get-by-username/${value}`)
       .then(async (res) => {
         const users: APIResponseUser[] = res.data.users;
         const usersWithPfps = setUserPfps(users);
@@ -50,11 +49,11 @@ function SearchMenu({ onClose }: Props) {
 
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
-  
+
   const handleUserClick = (user: ChatUser) => {
     setSelectedUserID(user.id);
     onClose();
-  }
+  };
 
   return (
     <Box
@@ -73,15 +72,24 @@ function SearchMenu({ onClose }: Props) {
       }}
       ref={searchMenuRef}
     >
-      <TextField
-        variant="standard"
-        placeholder="Search for a user"
-        color="secondary"
-        sx={{ width: "100%" }}
-        multiline
-        maxRows={3}
-        onChange={handleInputChange}
-      />
+      <Box sx={{ display: "flex" }}>
+        <TextField
+          variant="standard"
+          placeholder="Search for a user"
+          color="secondary"
+          sx={{ width: "100%" }}
+          multiline
+          maxRows={3}
+          onChange={handleInputChange}
+        />
+        <img
+          src={cancelCross}
+          alt=""
+          width={40}
+          style={{ margin: "0 10px", cursor: "pointer" }}
+          onClick={onClose}
+        />
+      </Box>
       <Box sx={{ overflow: "auto" }}>
         {foundUsers.map((user) => (
           <Box

@@ -10,6 +10,14 @@ import ProtectedRoute from "./Components/authentication/ProtectedRoute";
 import { createTheme, ThemeProvider } from "@mui/material";
 import SocketProvider from "./Components/SocketProvider";
 import NotFound from "./pages/NotFound";
+import axios from "axios";
+
+export const api = axios.create({
+  baseURL: import.meta.env.VITE_API_BASE_URL,
+  withCredentials: true,
+});
+
+console.log(import.meta.env.VITE_API_BASE_URL);
 
 const router = createBrowserRouter([
   {

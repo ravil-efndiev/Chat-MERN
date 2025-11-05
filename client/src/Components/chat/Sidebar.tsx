@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { APIResponseUser, ChatUser } from "../../types/user";
-import axios from "axios";
 import { Box, Button, Paper } from "@mui/material";
 import drawerSwitchImg from "../../assets/drawer-switch.svg";
 import searchImg from "../../assets/search.svg";
 import { getProfilePicURL } from "../../utils/requests";
 import UserDisplay from "./UserDisplay";
-import { useSelectedUserID } from "../../pages/Chat";
+import { useMobileWindowInfo, useSelectedUserID } from "../../pages/Chat";
 import { useSocket } from "../SocketProvider";
 import { APIResponseMessage } from "../../types/message";
+import { api } from "../../main";
 
 export function setUserPfps(users: APIResponseUser[]) {
   return users.map(
@@ -27,7 +27,7 @@ interface Props {
   listRefreshTrigger: number;
 }
 
-function Sidebar({
+function  Sidebar({
   onDrawerOpen,
   onSearchMenuOpen,
   listRefreshTrigger,
@@ -37,13 +37,11 @@ function Sidebar({
   const [activeUserID, setActiveUserID] = useState("");
   const { selectedUserID, setSelectedUserID } = useSelectedUserID();
   const { socket } = useSocket();
+  const { isWindowMobile, isConversationVisible, setConversationVisible } = useMobileWindowInfo();
 
   const getUsersAndPfps = async () => {
     try {
-      const usersRes = await axios.get(
-        "http://localhost:3000/api/users/get-chats",
-        { withCredentials: true }
-      );
+      const usersRes = await api.get("/api/users/get-chats");
       const resUsers: APIResponseUser[] = usersRes.data.users;
       const usersWithPfps = setUserPfps(resUsers);
       setUsers(await Promise.all(usersWithPfps));
@@ -51,10 +49,6 @@ function Sidebar({
       console.error(err);
     }
   };
-
-  useEffect(() => {
-    getUsersAndPfps();
-  }, []);
 
   useEffect(() => {
     if (selectedUserID) {
@@ -68,13 +62,18 @@ function Sidebar({
 
   useEffect(() => {
     if (!socket) return;
-    
-    const handleMessageRecieve = (message: { senderID: string, message: APIResponseMessage }) => {
-      const chatExists = usersRef.current.some((user) => user.id === message.senderID);
+
+    const handleMessageRecieve = (message: {
+      senderID: string;
+      message: APIResponseMessage;
+    }) => {
+      const chatExists = usersRef.current.some(
+        (user) => user.id === message.senderID
+      );
       if (!chatExists) {
         getUsersAndPfps();
       }
-    }
+    };
 
     socket.on("message", handleMessageRecieve);
 
@@ -90,15 +89,28 @@ function Sidebar({
   const handleUserClick = (user: ChatUser) => {
     setSelectedUserID(user.id);
     setActiveUserID(user.id);
+    if (isWindowMobile) {
+      setConversationVisible(true);
+    }
   };
 
   return (
-    <Paper elevation={5} className="sidebar" sx={{ overflowY: "auto" }}>
+    <Paper
+      elevation={5}
+      className="sidebar"
+      sx={{
+        width: { lg: "25vw", md: "30vw", sm: "40vw", xs: "100vw" },
+        height: "100vh",
+        overflowY: "auto",
+        display: isWindowMobile && isConversationVisible ? "none" : "block",
+      }}
+    >
       <Box
         sx={{
           display: "flex",
           justifyContent: "space-between",
-          px: 2, py: 1,
+          px: 2,
+          py: 1,
         }}
       >
         <Button
@@ -113,7 +125,7 @@ function Sidebar({
           src={searchImg}
           width={30}
           alt="searchbar switch"
-          style={{cursor: "pointer"}}
+          style={{ cursor: "pointer" }}
         />
       </Box>
       {users.map((user) => (

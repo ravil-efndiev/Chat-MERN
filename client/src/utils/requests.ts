@@ -1,11 +1,10 @@
-import axios from "axios";
+import { api } from "../main";
 
 export async function getProfilePicURL(id: string) {
-  const res = await axios.get(
-    `http://localhost:3000/api/users/profile-picture/${id}`,
+  const res = await api.get(
+    `/api/users/profile-picture/${id}`,
     {
       responseType: "blob",
-      withCredentials: true,
     }
   );
   return URL.createObjectURL(res.data);

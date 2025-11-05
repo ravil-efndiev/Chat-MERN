@@ -1,12 +1,12 @@
-import { Box, Button, Drawer, Typography } from "@mui/material";
+import { Box, Button, SwipeableDrawer, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../authentication/AuthProvider";
 import ProfilePictureUpload from "../ProfilePictureUpload";
-import axios from "axios";
 import Input from "../Input";
 import useFormValues from "../../hooks/useFormValues";
 import { getProfilePicURL } from "../../utils/requests";
 import { useNavigate } from "react-router-dom";
+import { api } from "../../main";
 
 interface Props {
   open: boolean;
@@ -42,9 +42,8 @@ function ProfileDrawer({ open, onClose }: Props) {
     if (formValues.fullName !== "") formData.append("fullName", formValues.fullName);
     if (newPfp) formData.append("profilePicture", newPfp);
 
-    axios
-      .post("http://localhost:3000/api/users/update", formData, {
-        withCredentials: true,
+    api
+      .post("/api/users/update", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -65,10 +64,9 @@ function ProfileDrawer({ open, onClose }: Props) {
   };
 
   const handleLogout = () => {
-    axios
+    api
       .post(
-        "http://localhost:3000/api/auth/logout", {},
-        { withCredentials: true }
+        "/api/auth/logout", {},
       )
       .then(() => {
         navigate("/login");
@@ -76,15 +74,17 @@ function ProfileDrawer({ open, onClose }: Props) {
   };
 
   return (
-    <Drawer
+    <SwipeableDrawer
       open={open}
       onClose={() => {
         resetForm();
         setNewPfp(null);
         onClose();
       }}
+      onOpen={() => {}}
+      disableSwipeToOpen={true}
     >
-      <Box sx={{ minWidth: "20vw", py: 3 }}>
+      <Box sx={{ minWidth: {md: "20vw", xs: "50vw"}, py: 3 }}>
         <Typography variant="h4" sx={{ mb: 2 }}>
           Your Profile
         </Typography>
@@ -135,7 +135,7 @@ function ProfileDrawer({ open, onClose }: Props) {
       <Button color="secondary" sx={{ mt: "auto" }} onClick={handleLogout}>
         Log Out
       </Button>
-    </Drawer>
+    </SwipeableDrawer>
   );
 }
 

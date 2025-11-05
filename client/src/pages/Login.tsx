@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { Button, Typography } from "@mui/material";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 
 import FormWrapper from "../Components/FormWrapper";
 import Input from "../Components/Input";
 import useFormValues from "../hooks/useFormValues";
 import { useAuth } from "../Components/authentication/AuthProvider";
+import { api } from "../main";
 
 function Login() {
   const { formValues, handleInputChange } = useFormValues({
@@ -21,15 +21,11 @@ function Login() {
   const handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
-    axios
-      .post(
-        "http://localhost:3000/api/auth/login",
-        {
-          username: formValues.username,
-          password: formValues.password,
-        },
-        { withCredentials: true }
-      )
+    api
+      .post("/api/auth/login", {
+        username: formValues.username,
+        password: formValues.password,
+      })
       .then((res) => {
         setCurrentUser(res.data.user);
         navigate("/");
@@ -64,7 +60,9 @@ function Login() {
       <Typography sx={{ fontWeight: 100, fontSize: 14, mt: 4 }}>
         Don't have an account? <Link to="/signup">Sign Up</Link>
       </Typography>
-      {serverError && <Typography sx={{color: "#b71d1d"}}>{serverError}</Typography>}
+      {serverError && (
+        <Typography sx={{ color: "#b71d1d" }}>{serverError}</Typography>
+      )}
     </FormWrapper>
   );
 }

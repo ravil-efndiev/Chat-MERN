@@ -2,10 +2,11 @@ import { Box, Button, TextField, Typography } from "@mui/material";
 import { APIResponseMessage, ChatMessage } from "../../types/message";
 import sendIcon from "../../assets/send-arrow.svg";
 import { useEffect, useRef, useState, ReactNode } from "react";
-import axios from "axios";
 import MessageBubble from "./MessageBubble";
 import { useSocket } from "../SocketProvider";
-import { useSelectedUserID } from "../../pages/Chat";
+import { useMobileWindowInfo, useSelectedUserID } from "../../pages/Chat";
+import ConversationTopBar, { topBarHeightPx } from "./ConversationTopBar";
+import { api } from "../../main";
 
 interface Props {
   with: string;
@@ -14,20 +15,20 @@ interface Props {
 
 function Conversation({ with: otherUserID, refreshChatList }: Props) {
   type MessagesByDay = Map<string, ChatMessage[]>;
-
+  
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [messagesByDay, setMessagesByDay] = useState<MessagesByDay>(new Map());
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const { socket } = useSocket();
   const { setSelectedUserID } = useSelectedUserID();
-
+  const { isWindowMobile, isConversationVisible } = useMobileWindowInfo();
+  const inputHeightPx = 100;
+  
   useEffect(() => {
     if (!otherUserID || !socket) return;
-    axios
-      .get(`http://localhost:3000/api/messages/get-all/${otherUserID}`, {
-        withCredentials: true,
-      })
+    api
+      .get(`/api/messages/get-all/${otherUserID}`)
       .then((res) => {
         const formatted = formatMessages(res.data.messages);
         setMessages(formatted);
@@ -36,7 +37,10 @@ function Conversation({ with: otherUserID, refreshChatList }: Props) {
         setMessages([]);
       });
 
-    const handleMessageRecieve = (msg: { senderID: string, message: APIResponseMessage }) => {
+    const handleMessageRecieve = (msg: {
+      senderID: string;
+      message: APIResponseMessage;
+    }) => {
       if (msg.senderID === otherUserID) {
         setMessages((prev) => {
           return formatMessages([...prev, msg.message]);
@@ -97,15 +101,11 @@ function Conversation({ with: otherUserID, refreshChatList }: Props) {
     event.preventDefault();
     if (!otherUserID) return;
 
-    axios
-      .post(
-        "http://localhost:3000/api/messages/send/",
-        {
-          message: newMessage,
-          receiverID: otherUserID,
-        },
-        { withCredentials: true }
-      )
+    api
+      .post("/api/messages/send/", {
+        message: newMessage,
+        receiverID: otherUserID,
+      })
       .then((res) => {
         if (messages.length <= 0) {
           setSelectedUserID(otherUserID);
@@ -131,14 +131,22 @@ function Conversation({ with: otherUserID, refreshChatList }: Props) {
     }
   };
 
-  const chatPlaceholder = (text: string, fullHeight: boolean): React.ReactNode => (
+  const chatPlaceholder = (
+    text: string,
+    fullHeight: boolean
+  ): React.ReactNode => (
     <Box
-      sx={{ height: fullHeight ? "100vh" : "85vh", flex: 1, display: "flex", alignItems: "center" }}
-    >
+      sx={{
+        height: fullHeight ? "100vh" : `calc(100vh - ${inputHeightPx + topBarHeightPx}px)`,
+        flex: 1,
+        display: isWindowMobile && !isConversationVisible ? "none" : "flex",
+        alignItems: "center",
+      }}
+      >
       <Typography
         sx={{ color: "#fff", textAlign: "center", width: "100%" }}
         variant="h6"
-      >
+        >
         {text}
       </Typography>
     </Box>
@@ -178,14 +186,23 @@ function Conversation({ with: otherUserID, refreshChatList }: Props) {
     return finalNode;
   };
 
-  if (!otherUserID) return chatPlaceholder("Select someone to start chatting", true);
+  if (!otherUserID)
+    return chatPlaceholder("Select someone to start chatting", true);
+
 
   return (
-    <Box sx={{ flex: 1, height: "100vh" }}>
+    <Box
+      sx={{
+        display: isWindowMobile && !isConversationVisible ? "none" : "block",
+        flex: 1,
+        height: "100vh",
+      }}
+    >
+      <ConversationTopBar />
       {messages.length > 0 ? (
         <Box
           sx={{
-            height: `calc(100vh - 100px)`,
+            height: `calc(100vh - ${inputHeightPx + topBarHeightPx}px)`,
             mx: "auto",
             px: 4,
             overflowY: "auto",

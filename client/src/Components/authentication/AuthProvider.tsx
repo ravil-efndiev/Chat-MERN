@@ -8,8 +8,8 @@ import {
   useState,
 } from "react";
 import { AuthUser } from "../../types/user";
-import axios from "axios";
 import { CircularProgress } from "@mui/material";
+import { api } from "../../main";
 
 interface AuthContextType {
   currentUser: AuthUser;
@@ -23,8 +23,8 @@ function AuthProvider({ children }: PropsWithChildren) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/api/auth/status", { withCredentials: true })
+    api
+      .get("/api/auth/status")
       .then((res) => {
         setCurrentUser(res.data.user)
       })
@@ -35,7 +35,7 @@ function AuthProvider({ children }: PropsWithChildren) {
         setLoading(false);
       });
 
-      const interceptor = axios.interceptors.response.use(
+      const interceptor = api.interceptors.response.use(
         (res) => res,
         (error) => {
           if (error.response?.status === 401) {
@@ -45,7 +45,7 @@ function AuthProvider({ children }: PropsWithChildren) {
         }
       );
     
-      return () => axios.interceptors.response.eject(interceptor);
+      return () => api.interceptors.response.eject(interceptor);
   }, []);
 
   if (loading) {

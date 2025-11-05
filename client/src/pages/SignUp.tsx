@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import { Box, Button, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 
 import { useAuth } from "../Components/authentication/AuthProvider";
 import useFormValues from "../hooks/useFormValues";
 import FormWrapper from "../Components/FormWrapper";
 import Input from "../Components/Input";
 import ProfilePictureUpload from "../Components/ProfilePictureUpload";
+import { api } from "../main";
 
 function SignUp() {
   const { formValues, handleInputChange } = useFormValues({
@@ -34,9 +34,8 @@ function SignUp() {
       formData.append("profilePicture", profilePicture);
     }
 
-    axios
-      .post("http://localhost:3000/api/auth/register", formData, {
-        withCredentials: true,
+    api
+      .post("/api/auth/register", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
