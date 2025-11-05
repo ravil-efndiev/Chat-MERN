@@ -2,7 +2,7 @@ import { Container, Paper } from "@mui/material";
 import { PropsWithChildren } from "react";
 
 interface Props extends PropsWithChildren {
-  width: string | number;
+  width: { [key: string]: string | number };
 }
 
 function FormWrapper({ width, children }: Props) {

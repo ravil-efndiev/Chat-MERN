@@ -65,7 +65,6 @@ function Chat() {
           />
           <Conversation
             refreshChatList={refreshChatList}
-            with={selectedUserID}
           />
         </Box>
         {searchMenuOpen && (

@@ -37,7 +37,7 @@ function Login() {
   };
 
   return (
-    <FormWrapper width="30%">
+    <FormWrapper width={{lg: "30%", md: "50%", sm: "70%", xs: "70%"}}>
       <form onSubmit={handleFormSubmit}>
         <Typography variant="h4" sx={{ mb: 2, fontWeight: 400 }}>
           Log into your accout

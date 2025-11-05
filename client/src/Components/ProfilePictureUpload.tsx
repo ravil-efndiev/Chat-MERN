@@ -3,7 +3,7 @@ import { Button, Avatar, Typography, Box } from "@mui/material";
 
 interface Props {
   onFileChange: (file: File) => void;
-  width?: string | number;
+  width?: {[style: string]: string | number};
   defaultPfpURL?: string;
   customHeading?: string;
   customSx?: {[key: string]: any};
@@ -46,7 +46,7 @@ function ProfilePictureUpload({
         p: 1,
       }}
     >
-      <Typography variant="h6" gutterBottom>
+      <Typography variant="h6" gutterBottom sx={{textAlign: "center"}}>
         {customHeading || "Upload Profile Picture"}
       </Typography>
       <Avatar

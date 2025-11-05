@@ -9,11 +9,10 @@ import ConversationTopBar, { topBarHeightPx } from "./ConversationTopBar";
 import { api } from "../../main";
 
 interface Props {
-  with: string;
   refreshChatList: () => void;
 }
 
-function Conversation({ with: otherUserID, refreshChatList }: Props) {
+function Conversation({ refreshChatList }: Props) {
   type MessagesByDay = Map<string, ChatMessage[]>;
   
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -24,6 +23,7 @@ function Conversation({ with: otherUserID, refreshChatList }: Props) {
   const { setSelectedUserID } = useSelectedUserID();
   const { isWindowMobile, isConversationVisible } = useMobileWindowInfo();
   const inputHeightPx = 100;
+  const { selectedUserID: otherUserID } = useSelectedUserID();
   
   useEffect(() => {
     if (!otherUserID || !socket) return;

@@ -50,10 +50,17 @@ function SignUp() {
   };
 
   return (
-    <FormWrapper width="45%">
+    <FormWrapper width={{ lg: "45%", md: "70%", sm: "80%", xs: "80%" }}>
       <form onSubmit={handleFormSubmit}>
-        <Box sx={{ display: "flex", gap: 5 }}>
-          <Box sx={{ width: "55%" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { md: "row", sm: "column", xs: "column" },
+            alignItems: { md: "baseline", sm: "center", xs: "center" },
+            gap: 5,
+          }}
+        >
+          <Box sx={{ width: { md: "55%", sm: "70%", xs: "90%" } }}>
             <Typography variant="h4" sx={{ mb: 2, fontWeight: 400 }}>
               Create an Account
             </Typography>
@@ -75,18 +82,28 @@ function SignUp() {
             />
           </Box>
           <ProfilePictureUpload
-            width="45%"
+            width={{md: "45%", sm: "70%", xs: "70%"}}
             onFileChange={(file) => setProfilePicture(file)}
           />
         </Box>
-        <Button variant="contained" color="secondary" type="submit">
+        <Button
+          variant="contained"
+          color="secondary"
+          type="submit"
+          sx={{
+            display: { md: "block", sm: "flex", xs: "flex" },
+            margin: { md: "0", sm: "0 auto", xs: "0 auto" },
+          }}
+        >
           Sign Up
         </Button>
       </form>
       <Typography sx={{ fontWeight: 100, fontSize: 14, mt: 4 }}>
         Already have an account? <Link to="/login">Log In</Link>
       </Typography>
-      {serverError && <Typography sx={{color: "#b71d1d"}}>{serverError}</Typography>}
+      {serverError && (
+        <Typography sx={{ color: "#b71d1d" }}>{serverError}</Typography>
+      )}
     </FormWrapper>
   );
 }
