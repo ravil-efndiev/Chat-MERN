@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "nodemon server/server.ts",
     "start": "node dist/server.js",
-    "build": "npm install --prefix client && npm run build --prefix client && tsc",
+    "build": "npm install --prefix client && npm run build --prefix client && npm install && tsc",
     "heroku-postbuild": "npm run build"
   },
   "keywords": [],
