@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, ReactNode } from "react";
 import MessageBubble from "./MessageBubble";
 import { useSocket } from "../SocketProvider";
 import { useMobileWindowInfo, useSelectedUserID } from "../../pages/Chat";
-import ConversationTopBar, { topBarHeightPx } from "./ConversationTopBar";
+import ConversationTopBar from "./ConversationTopBar";
 import { api } from "../../main";
 
 interface Props {
@@ -22,7 +22,6 @@ function Conversation({ refreshChatList }: Props) {
   const { socket } = useSocket();
   const { setSelectedUserID } = useSelectedUserID();
   const { isWindowMobile, isConversationVisible } = useMobileWindowInfo();
-  const inputHeightPx = 100;
   const { selectedUserID: otherUserID } = useSelectedUserID();
   
   useEffect(() => {
@@ -133,11 +132,9 @@ function Conversation({ refreshChatList }: Props) {
 
   const chatPlaceholder = (
     text: string,
-    fullHeight: boolean
   ): React.ReactNode => (
     <Box
       sx={{
-        height: fullHeight ? "100vh" : `calc(100vh - ${inputHeightPx + topBarHeightPx}px)`,
         flex: 1,
         display: isWindowMobile && !isConversationVisible ? "none" : "flex",
         alignItems: "center",
@@ -187,33 +184,34 @@ function Conversation({ refreshChatList }: Props) {
   };
 
   if (!otherUserID)
-    return chatPlaceholder("Select someone to start chatting", true);
+    return chatPlaceholder("Select someone to start chatting");
 
 
   return (
     <Box
       sx={{
-        display: isWindowMobile && !isConversationVisible ? "none" : "block",
+        display: isWindowMobile && !isConversationVisible ? "none" : "flex",
         flex: 1,
         height: "100vh",
+        flexDirection: "column"
       }}
     >
       <ConversationTopBar />
       {messages.length > 0 ? (
         <Box
           sx={{
-            height: `calc(100vh - ${inputHeightPx + topBarHeightPx}px)`,
-            mx: "auto",
-            px: 4,
+            display: "flex",
+            flexDirection: "column",
             overflowY: "auto",
             flex: 1,
+            px: 4,
           }}
         >
           {renderGroupedMessages()}
           <div ref={lastMessageRef}></div>
         </Box>
       ) : (
-        chatPlaceholder("No messages here yet", false)
+        chatPlaceholder("No messages here yet")
       )}
       <form className="chat-input-bar" onSubmit={handleMessageSend}>
         <TextField

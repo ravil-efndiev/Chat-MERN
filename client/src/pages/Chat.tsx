@@ -53,7 +53,14 @@ function Chat() {
           setConversationVisible: setIsConversationVisible,
         }}
       >
-        <Box sx={{ display: "flex", height: "100%", width: "100%" }}>
+        <Box
+          sx={{
+            display: "flex",
+            height: "100vh",
+            width: "100%",
+            overflow: "hidden",
+          }}
+        >
           <ProfileDrawer
             open={drawerOpen}
             onClose={() => setDrawerOpen(false)}
@@ -63,9 +70,7 @@ function Chat() {
             onSearchMenuOpen={() => setSearchMenuOpen(true)}
             listRefreshTrigger={refreshTrigger}
           />
-          <Conversation
-            refreshChatList={refreshChatList}
-          />
+          <Conversation refreshChatList={refreshChatList} />
         </Box>
         {searchMenuOpen && (
           <SearchMenu onClose={() => setSearchMenuOpen(false)} />

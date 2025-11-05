@@ -6,12 +6,11 @@ import { api } from "../../main";
 import { ChatUser } from "../../types/user";
 import { getProfilePicURL } from "../../utils/requests";
 
-export const topBarHeightPx = 60;
-
 function ConversationTopBar() {
   const { isWindowMobile, setConversationVisible } = useMobileWindowInfo();
   const { selectedUserID } = useSelectedUserID();
   const [selectedUser, setSelectedUser] = useState<ChatUser>();
+  const topBarHeightPx = 60;
 
   useEffect(() => {
     const getUserData = async () => {
@@ -36,10 +35,7 @@ function ConversationTopBar() {
   };
 
   return (
-    <Paper
-      elevation={3}
-      sx={{ height: `${topBarHeightPx}px`, display: "flex" }}
-    >
+    <Paper elevation={3} sx={{ height: topBarHeightPx, display: "flex" }}>
       {isWindowMobile && (
         <>
           <Box sx={{ height: topBarHeightPx, display: "flex" }}>
@@ -47,7 +43,12 @@ function ConversationTopBar() {
               src={arrowBack}
               alt=""
               width={topBarHeightPx - 10}
-              style={{ margin: "auto 0", cursor: "pointer" }}
+              style={{
+                margin: "auto 0",
+                cursor: "pointer",
+                transform: "none",
+                direction: "ltr",
+              }}
               onClick={handleArrowClick}
             />
           </Box>

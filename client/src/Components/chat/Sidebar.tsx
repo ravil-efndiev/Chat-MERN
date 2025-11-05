@@ -27,7 +27,7 @@ interface Props {
   listRefreshTrigger: number;
 }
 
-function  Sidebar({
+function Sidebar({
   onDrawerOpen,
   onSearchMenuOpen,
   listRefreshTrigger,
@@ -37,7 +37,8 @@ function  Sidebar({
   const [activeUserID, setActiveUserID] = useState("");
   const { selectedUserID, setSelectedUserID } = useSelectedUserID();
   const { socket } = useSocket();
-  const { isWindowMobile, isConversationVisible, setConversationVisible } = useMobileWindowInfo();
+  const { isWindowMobile, isConversationVisible, setConversationVisible } =
+    useMobileWindowInfo();
 
   const getUsersAndPfps = async () => {
     try {
@@ -100,9 +101,9 @@ function  Sidebar({
       className="sidebar"
       sx={{
         width: { lg: "25vw", md: "30vw", sm: "40vw", xs: "100vw" },
-        height: "100vh",
         overflowY: "auto",
-        display: isWindowMobile && isConversationVisible ? "none" : "block",
+        display: isWindowMobile && isConversationVisible ? "none" : "flex",
+        flexDirection: "column",
       }}
     >
       <Box
@@ -128,19 +129,23 @@ function  Sidebar({
           style={{ cursor: "pointer" }}
         />
       </Box>
-      {users.map((user) => (
-        <div
-          className={
-            activeUserID === user.id
-              ? "sidebar-user user-active"
-              : "sidebar-user"
-          }
-          key={user.id}
-          onClick={() => handleUserClick(user)}
-        >
-          <UserDisplay user={user} />
-        </div>
-      ))}
+      <Box sx={{
+        flex: 1
+      }}>
+        {users.map((user) => (
+          <div
+            className={
+              activeUserID === user.id
+                ? "sidebar-user user-active"
+                : "sidebar-user"
+            }
+            key={user.id}
+            onClick={() => handleUserClick(user)}
+          >
+            <UserDisplay user={user} />
+          </div>
+        ))}
+      </Box>
     </Paper>
   );
 }
