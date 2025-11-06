@@ -106,6 +106,7 @@ function Sidebar({
   };
 
   const renderUserDisplay = (user: ChatUser) => {
+    if (!user) return;
     return (
       <Box
         sx={{
