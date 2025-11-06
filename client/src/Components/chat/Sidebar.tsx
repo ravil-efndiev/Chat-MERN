@@ -1,11 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { APIResponseUser, ChatUser } from "../../types/user";
-import { Box, Button, Paper } from "@mui/material";
+import { Box, Button, colors, Paper } from "@mui/material";
 import drawerSwitchImg from "../../assets/drawer-switch.svg";
 import searchImg from "../../assets/search.svg";
 import { getProfilePicURL } from "../../utils/requests";
 import UserDisplay from "./UserDisplay";
-import { useMobileWindowInfo, useSelectedUserID } from "../../pages/Chat";
+import {
+  useLastInteractedUserId,
+  useMobileWindowInfo,
+  useSelectedUserId,
+} from "../../utils/contexts";
 import { useSocket } from "../SocketProvider";
 import { APIResponseMessage } from "../../types/message";
 import { api } from "../../main";
@@ -35,10 +39,12 @@ function Sidebar({
   const [users, setUsers] = useState<ChatUser[]>([]);
   const usersRef = useRef<ChatUser[]>([]);
   const [activeUserID, setActiveUserID] = useState("");
-  const { selectedUserID, setSelectedUserID } = useSelectedUserID();
+  const { selectedUserId, setSelectedUserId } = useSelectedUserId();
   const { socket } = useSocket();
   const { isWindowMobile, isConversationVisible, setConversationVisible } =
     useMobileWindowInfo();
+  const { lastInteractedUserId, setLastInteractedUserId } =
+    useLastInteractedUserId();
 
   const getUsersAndPfps = async () => {
     try {
@@ -52,10 +58,10 @@ function Sidebar({
   };
 
   useEffect(() => {
-    if (selectedUserID) {
-      setActiveUserID(selectedUserID);
+    if (selectedUserId) {
+      setActiveUserID(selectedUserId);
     }
-  }, [selectedUserID]);
+  }, [selectedUserId]);
 
   useEffect(() => {
     usersRef.current = users;
@@ -74,6 +80,10 @@ function Sidebar({
       if (!chatExists) {
         getUsersAndPfps();
       }
+
+      if (message.senderID !== lastInteractedUserId) {
+        setLastInteractedUserId(message.senderID);
+      }
     };
 
     socket.on("message", handleMessageRecieve);
@@ -88,11 +98,37 @@ function Sidebar({
   }, [listRefreshTrigger]);
 
   const handleUserClick = (user: ChatUser) => {
-    setSelectedUserID(user.id);
+    setSelectedUserId(user.id);
     setActiveUserID(user.id);
     if (isWindowMobile) {
       setConversationVisible(true);
     }
+  };
+
+  const renderUserDisplay = (user: ChatUser) => {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          padding: "15px",
+          cursor: "pointer",
+          transition: "background-color 250ms",
+          ...(activeUserID === user.id && {
+            bgcolor: colors.deepPurple[400] + "aa",
+          }),
+          "&:hover": {
+            bgcolor: colors.deepPurple[600] + "36",
+            ...(activeUserID === user.id && {
+              bgcolor: colors.deepPurple[400] + "aa",
+            }),
+          },
+        }}
+        key={user.id}
+        onClick={() => handleUserClick(user)}
+      >
+        <UserDisplay user={user} />
+      </Box>
+    );
   };
 
   return (
@@ -117,34 +153,29 @@ function Sidebar({
         <Button
           variant="contained"
           onClick={() => onDrawerOpen()}
-          sx={{ minWidth: 0, p: 1 }}
+          sx={{ p: 0, my: "auto", minWidth: 52, width: 52, height: 52 }}
         >
           <img src={drawerSwitchImg} width={30} alt="drawer switch" />
         </Button>
-        <img
+        <Button
           onClick={() => onSearchMenuOpen()}
-          src={searchImg}
-          width={30}
-          alt="searchbar switch"
-          style={{ cursor: "pointer" }}
-        />
+          sx={{ borderRadius: "50%", px: 2, py: 2 }}
+        >
+          <img src={searchImg} width={30} alt="searchbar switch" />
+        </Button>
       </Box>
-      <Box sx={{
-        flex: 1
-      }}>
-        {users.map((user) => (
-          <div
-            className={
-              activeUserID === user.id
-                ? "sidebar-user user-active"
-                : "sidebar-user"
-            }
-            key={user.id}
-            onClick={() => handleUserClick(user)}
-          >
-            <UserDisplay user={user} />
-          </div>
-        ))}
+      <Box
+        sx={{
+          flex: 1,
+        }}
+      >
+        {lastInteractedUserId !== "" &&
+          renderUserDisplay(
+            users.find((user) => user.id === lastInteractedUserId)!
+          )}
+        {users.map(
+          (user) => user.id !== lastInteractedUserId && renderUserDisplay(user)
+        )}
       </Box>
     </Paper>
   );

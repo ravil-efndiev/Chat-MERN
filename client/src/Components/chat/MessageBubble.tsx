@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, colors, Typography } from "@mui/material";
 import { ReactNode, useEffect, useState } from "react";
 
 interface Props {
@@ -14,7 +14,9 @@ function MessageBubble({ text, isSender, createdAt }: Props) {
     const hours = date.getHours();
     const minutes = date.getMinutes();
     setCreateTime(
-      `${hours < 10 ? `0${hours}` : hours}:${minutes < 10 ? `0${minutes}` : minutes}`
+      `${hours < 10 ? `0${hours}` : hours}:${
+        minutes < 10 ? `0${minutes}` : minutes
+      }`
     );
   }, [createdAt]);
 
@@ -32,14 +34,19 @@ function MessageBubble({ text, isSender, createdAt }: Props) {
           px: 2,
           py: 1,
           borderRadius: 2,
-          bgcolor: isSender ? "#3f51a5" : "#40404f",
+          bgcolor: "transparent",
+          background: isSender
+            ? `linear-gradient(to bottom right, ${colors.indigo[500]}, ${colors.deepPurple[400]})`
+            : "#3a464dff",
           color: "#fff",
           alignSelf: "flex-start",
           textAlign: isSender ? "right" : "left",
         }}
       >
         {text}
-        <Typography sx={{color: "#dadada", fontSize: 12}}>{createTime}</Typography>
+        <Typography sx={{ color: "#dadada", fontSize: 12 }}>
+          {createTime}
+        </Typography>
       </Box>
     </Box>
   );

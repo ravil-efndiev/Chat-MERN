@@ -85,7 +85,7 @@ function ProfileDrawer({ open, onClose }: Props) {
       disableSwipeToOpen={true}
     >
       <Box sx={{ minWidth: {md: "20vw", xs: "50vw"}, py: 3 }}>
-        <Typography variant="h4" sx={{ mb: 2 }}>
+        <Typography variant="h4" sx={{ textAlign: "center", mb: 2 }}>
           Your Profile
         </Typography>
         <hr />

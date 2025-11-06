@@ -1,10 +1,10 @@
-import { Box, TextField } from "@mui/material";
+import { Box, Button, TextField } from "@mui/material";
 import useDebounce from "../../hooks/useDebounce";
 import { useEffect, useRef, useState } from "react";
 import { APIResponseUser, ChatUser } from "../../types/user";
 import { setUserPfps } from "./Sidebar";
 import UserDisplay from "./UserDisplay";
-import { useMobileWindowInfo, useSelectedUserID } from "../../pages/Chat";
+import { useMobileWindowInfo, useSelectedUserId } from "../../utils/contexts";
 import { api } from "../../main";
 import cancelCross from "../../assets/cancel-cross.svg";
 
@@ -15,7 +15,7 @@ interface Props {
 function SearchMenu({ onClose }: Props) {
   const [foundUsers, setFoundUsers] = useState<ChatUser[]>([]);
   const searchMenuRef = useRef<HTMLDivElement>(null);
-  const { setSelectedUserID } = useSelectedUserID();
+  const { setSelectedUserId } = useSelectedUserId();
   const { isWindowMobile, setConversationVisible } = useMobileWindowInfo();
 
   const { handleInputChange } = useDebounce((value) => {
@@ -52,7 +52,7 @@ function SearchMenu({ onClose }: Props) {
   }, []);
 
   const handleUserClick = (user: ChatUser) => {
-    setSelectedUserID(user.id);
+    setSelectedUserId(user.id);
     if (isWindowMobile) {
       setConversationVisible(true);
     }
@@ -86,13 +86,20 @@ function SearchMenu({ onClose }: Props) {
           maxRows={3}
           onChange={handleInputChange}
         />
-        <img
-          src={cancelCross}
-          alt=""
-          width={40}
-          style={{ margin: "0 10px", cursor: "pointer" }}
+        <Button
+          color="secondary"
           onClick={onClose}
-        />
+          sx={{
+            my: "auto",
+            borderRadius: "50%",
+            minWidth: 55,
+            width: 55, 
+            height: 55,
+            ml: "10px"
+          }}
+        >
+          <img src={cancelCross} alt="" width={35} />
+        </Button>
       </Box>
       <Box sx={{ overflow: "auto" }}>
         {foundUsers.map((user) => (

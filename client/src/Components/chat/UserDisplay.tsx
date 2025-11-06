@@ -1,14 +1,17 @@
-import { ChatUser } from '../../types/user'
-import { Avatar, Box, Typography } from '@mui/material';
+import { ChatUser } from "../../types/user";
+import { Avatar, Box, Typography } from "@mui/material";
 
 interface Props {
   user: ChatUser;
+  showProfilePic?: boolean;
 }
 
-function UserDisplay({ user }: Props) {
+function UserDisplay({ user, showProfilePic = true }: Props) {
   return (
     <>
-      <Avatar src={user.profilePictureURL} sx={{ width: 60, height: 60 }} />
+      {showProfilePic && (
+        <Avatar src={user.profilePictureURL} sx={{ width: 60, height: 60 }} />
+      )}
       <Box
         sx={{
           ml: 2,
@@ -23,7 +26,7 @@ function UserDisplay({ user }: Props) {
         </Typography>
       </Box>
     </>
-  )
+  );
 }
 
 export default UserDisplay;

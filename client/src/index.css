@@ -12,24 +12,6 @@ a {
   color: #ce93d8;
 }
 
-.sidebar-user {
-  display: flex;
-  padding: 15px;
-  cursor: pointer;
-}
-
-.user-active {
-  background-color: #484d6f;
-}
-
-.sidebar-user:hover {
-  background-color: #303030;
-}
-
-.user-active:hover {
-  background-color: #484d6f;
-}
-
 .chat-input-bar {
   display: flex;
   background-color: #303030;

@@ -1,39 +1,20 @@
 import { Box, useMediaQuery } from "@mui/material";
 import Sidebar from "../Components/chat/Sidebar";
-import {
-  createContext,
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useState,
-} from "react";
+import { useState } from "react";
 import Conversation from "../Components/chat/Conversation";
 import ProfileDrawer from "../Components/chat/ProfileDrawer";
 import SearchMenu from "../Components/chat/SearchMenu";
-
-interface SelectedUserContextType {
-  selectedUserID: string;
-  setSelectedUserID: Dispatch<SetStateAction<string>>;
-}
-
-const SelectedUserIDContext = createContext<
-  SelectedUserContextType | undefined
->(undefined);
-
-interface MobileWindowInfo {
-  isWindowMobile: boolean;
-  isConversationVisible: boolean;
-  setConversationVisible: Dispatch<SetStateAction<boolean>>;
-}
-
-const MobileWindowInfoContext = createContext<MobileWindowInfo | undefined>(
-  undefined
-);
+import {
+  LastInteractedUserIdContext,
+  MobileWindowInfoContext,
+  SelectedUserIdContext,
+} from "../utils/contexts";
 
 function Chat() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchMenuOpen, setSearchMenuOpen] = useState(false);
-  const [selectedUserID, setSelectedUserID] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const [lastInteractedUserId, setLastInteractedUserId] = useState("");
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const isWindowMobile = useMediaQuery("(max-width: 600px)");
   const [isConversationVisible, setIsConversationVisible] = useState(false);
@@ -43,61 +24,51 @@ function Chat() {
   };
 
   return (
-    <SelectedUserIDContext.Provider
-      value={{ selectedUserID, setSelectedUserID }}
+    <SelectedUserIdContext.Provider
+      value={{
+        selectedUserId: selectedUserId,
+        setSelectedUserId: setSelectedUserId,
+      }}
     >
-      <MobileWindowInfoContext.Provider
+      <LastInteractedUserIdContext.Provider
         value={{
-          isWindowMobile: isWindowMobile,
-          isConversationVisible: isConversationVisible,
-          setConversationVisible: setIsConversationVisible,
+          lastInteractedUserId: lastInteractedUserId,
+          setLastInteractedUserId: setLastInteractedUserId,
         }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            height: "100vh",
-            width: "100%",
-            overflow: "hidden",
+        <MobileWindowInfoContext.Provider
+          value={{
+            isWindowMobile: isWindowMobile,
+            isConversationVisible: isConversationVisible,
+            setConversationVisible: setIsConversationVisible,
           }}
         >
-          <ProfileDrawer
-            open={drawerOpen}
-            onClose={() => setDrawerOpen(false)}
-          />
-          <Sidebar
-            onDrawerOpen={() => setDrawerOpen(true)}
-            onSearchMenuOpen={() => setSearchMenuOpen(true)}
-            listRefreshTrigger={refreshTrigger}
-          />
-          <Conversation refreshChatList={refreshChatList} />
-        </Box>
-        {searchMenuOpen && (
-          <SearchMenu onClose={() => setSearchMenuOpen(false)} />
-        )}
-      </MobileWindowInfoContext.Provider>
-    </SelectedUserIDContext.Provider>
+          <Box
+            sx={{
+              display: "flex",
+              height: "100vh",
+              width: "100%",
+              overflow: "hidden",
+            }}
+          >
+            <ProfileDrawer
+              open={drawerOpen}
+              onClose={() => setDrawerOpen(false)}
+            />
+            <Sidebar
+              onDrawerOpen={() => setDrawerOpen(true)}
+              onSearchMenuOpen={() => setSearchMenuOpen(true)}
+              listRefreshTrigger={refreshTrigger}
+            />
+            <Conversation refreshChatList={refreshChatList} />
+          </Box>
+          {searchMenuOpen && (
+            <SearchMenu onClose={() => setSearchMenuOpen(false)} />
+          )}
+        </MobileWindowInfoContext.Provider>
+      </LastInteractedUserIdContext.Provider>
+    </SelectedUserIdContext.Provider>
   );
-}
-
-export function useMobileWindowInfo() {
-  const context = useContext(MobileWindowInfoContext);
-
-  if (!context) {
-    throw new Error("Context should be only used inside it's provider");
-  }
-
-  return context;
-}
-
-export function useSelectedUserID() {
-  const context = useContext(SelectedUserIDContext);
-
-  if (!context) {
-    throw new Error("Context should be only used inside it's provider");
-  }
-
-  return context;
 }
 
 export default Chat;

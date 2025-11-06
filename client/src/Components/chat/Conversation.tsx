@@ -4,7 +4,11 @@ import sendIcon from "../../assets/send-arrow.svg";
 import { useEffect, useRef, useState, ReactNode } from "react";
 import MessageBubble from "./MessageBubble";
 import { useSocket } from "../SocketProvider";
-import { useMobileWindowInfo, useSelectedUserID } from "../../pages/Chat";
+import {
+  useLastInteractedUserId,
+  useMobileWindowInfo,
+  useSelectedUserId,
+} from "../../utils/contexts";
 import ConversationTopBar from "./ConversationTopBar";
 import { api } from "../../main";
 
@@ -14,20 +18,22 @@ interface Props {
 
 function Conversation({ refreshChatList }: Props) {
   type MessagesByDay = Map<string, ChatMessage[]>;
-  
+
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [messagesByDay, setMessagesByDay] = useState<MessagesByDay>(new Map());
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const { socket } = useSocket();
-  const { setSelectedUserID } = useSelectedUserID();
+  const { setSelectedUserId: setSelectedUserID } = useSelectedUserId();
   const { isWindowMobile, isConversationVisible } = useMobileWindowInfo();
-  const { selectedUserID: otherUserID } = useSelectedUserID();
-  
+  const { selectedUserId: otherUserId } = useSelectedUserId();
+  const { lastInteractedUserId, setLastInteractedUserId } =
+    useLastInteractedUserId();
+
   useEffect(() => {
-    if (!otherUserID || !socket) return;
+    if (!otherUserId || !socket) return;
     api
-      .get(`/api/messages/get-all/${otherUserID}`)
+      .get(`/api/messages/get-all/${otherUserId}`)
       .then((res) => {
         const formatted = formatMessages(res.data.messages);
         setMessages(formatted);
@@ -40,7 +46,11 @@ function Conversation({ refreshChatList }: Props) {
       senderID: string;
       message: APIResponseMessage;
     }) => {
-      if (msg.senderID === otherUserID) {
+      if (msg.senderID === otherUserId) {
+        if (otherUserId !== lastInteractedUserId) {
+          setLastInteractedUserId(otherUserId);
+        }
+
         setMessages((prev) => {
           return formatMessages([...prev, msg.message]);
         });
@@ -52,7 +62,7 @@ function Conversation({ refreshChatList }: Props) {
     return () => {
       socket.off("message", handleMessageRecieve);
     };
-  }, [otherUserID, socket]);
+  }, [otherUserId, socket]);
 
   useEffect(() => {
     groupMessagesByDate();
@@ -98,21 +108,24 @@ function Conversation({ refreshChatList }: Props) {
 
   const handleMessageSend = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!otherUserID) return;
+    if (!otherUserId || !newMessage) return;
+
+    if (otherUserId !== lastInteractedUserId) {
+      setLastInteractedUserId(otherUserId);
+    }
 
     api
       .post("/api/messages/send/", {
         message: newMessage,
-        receiverID: otherUserID,
+        receiverID: otherUserId,
       })
       .then((res) => {
         if (messages.length <= 0) {
-          setSelectedUserID(otherUserID);
+          setSelectedUserID(otherUserId);
         }
         setMessages((prev) => {
           if (prev.length === 0) {
             refreshChatList();
-            console.log("Rraarwr");
           }
           const newMesssages = [...prev, res.data.message];
           return formatMessages(newMesssages);
@@ -130,20 +143,43 @@ function Conversation({ refreshChatList }: Props) {
     }
   };
 
-  const chatPlaceholder = (
-    text: string,
-  ): React.ReactNode => (
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const currentYear = date.getFullYear() === now.getFullYear();
+
+    const sameDay = (a: Date, b: Date) =>
+      a.getFullYear() === b.getFullYear() &&
+      a.getMonth() === b.getMonth() &&
+      a.getDate() === b.getDate();
+
+    if (sameDay(date, now)) return "Today";
+
+    const yesterday = new Date();
+    yesterday.setDate(now.getDate() - 1);
+    if (sameDay(date, yesterday)) return "Yesterday";
+
+    const options: Intl.DateTimeFormatOptions = {
+      month: "long",
+      day: "numeric",
+      ...(currentYear ? {} : { year: "numeric" }),
+    };
+
+    return date.toLocaleDateString(undefined, options);
+  };
+
+  const chatPlaceholder = (text: string): React.ReactNode => (
     <Box
       sx={{
         flex: 1,
         display: isWindowMobile && !isConversationVisible ? "none" : "flex",
         alignItems: "center",
       }}
-      >
+    >
       <Typography
         sx={{ color: "#fff", textAlign: "center", width: "100%" }}
         variant="h6"
-        >
+      >
         {text}
       </Typography>
     </Box>
@@ -158,14 +194,15 @@ function Conversation({ refreshChatList }: Props) {
             sx={{
               display: "flex",
               justifyContent: "center",
-              maxWidth: 200,
+              maxWidth: 150,
               mx: "auto",
               bgcolor: "#313131",
               borderRadius: 10,
+              my: "7px",
             }}
           >
-            <Typography sx={{ color: "#ffffffaa", textAlign: "center" }}>
-              {day}
+            <Typography sx={{ color: "#ffffffff", textAlign: "center" }}>
+              {formatDate(day)}
             </Typography>
           </Box>
           {messages.map((msg) => (
@@ -183,9 +220,7 @@ function Conversation({ refreshChatList }: Props) {
     return finalNode;
   };
 
-  if (!otherUserID)
-    return chatPlaceholder("Select someone to start chatting");
-
+  if (!otherUserId) return chatPlaceholder("Select someone to start chatting");
 
   return (
     <Box
@@ -193,7 +228,7 @@ function Conversation({ refreshChatList }: Props) {
         display: isWindowMobile && !isConversationVisible ? "none" : "flex",
         flex: 1,
         height: "100vh",
-        flexDirection: "column"
+        flexDirection: "column",
       }}
     >
       <ConversationTopBar />
@@ -233,10 +268,12 @@ function Conversation({ refreshChatList }: Props) {
         <Button
           sx={{
             px: 2,
+            py: 2,
             cursor: "pointer",
-            ":hover": { bgcolor: "#00000000" },
+            borderRadius: "50%",
           }}
           type="submit"
+          color="secondary"
         >
           <img src={sendIcon} width={30} alt="send message arrow" />
         </Button>
