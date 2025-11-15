@@ -125,7 +125,7 @@ interface UpdateRequestType {
 
 const upload = multer({ dest: "uploads/" });
 
-router.post(
+router.patch(
   "/update", 
   checkAuthStatus, 
   upload.single("profilePicture"), 

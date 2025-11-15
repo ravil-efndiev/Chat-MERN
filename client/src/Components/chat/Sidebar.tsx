@@ -50,8 +50,12 @@ function Sidebar({
     try {
       const usersRes = await api.get("/api/users/get-chats");
       const resUsers: APIResponseUser[] = usersRes.data.users;
+      setUsers(
+        resUsers.map((resUser) => ({ ...resUser, profilePictureURL: "" }))
+      );
       const usersWithPfps = setUserPfps(resUsers);
-      setUsers(await Promise.all(usersWithPfps));
+      const result = await Promise.all(usersWithPfps);
+      setUsers(result);
     } catch (err) {
       console.error(err);
     }

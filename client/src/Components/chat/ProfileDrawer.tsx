@@ -43,7 +43,7 @@ function ProfileDrawer({ open, onClose }: Props) {
     if (newPfp) formData.append("profilePicture", newPfp);
 
     api
-      .post("/api/users/update", formData, {
+      .patch("/api/users/update", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

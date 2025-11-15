@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { Box, Button, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 
-import { useAuth } from "../Components/authentication/AuthProvider";
+import { useAuth } from "../components/authentication/AuthProvider";
 import useFormValues from "../hooks/useFormValues";
-import FormWrapper from "../Components/FormWrapper";
-import Input from "../Components/Input";
-import ProfilePictureUpload from "../Components/ProfilePictureUpload";
+import FormWrapper from "../components/FormWrapper";
+import Input from "../components/Input";
+import ProfilePictureUpload from "../components/ProfilePictureUpload";
 import { api } from "../main";
 
 function SignUp() {

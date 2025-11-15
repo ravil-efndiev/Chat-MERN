@@ -1,35 +1,21 @@
 import { Button, Paper } from "@mui/material";
-import { useEffect, useState } from "react";
 import arrowBack from "../../assets/arrow-back.svg";
 import { useMobileWindowInfo, useSelectedUserId } from "../../utils/contexts";
-import { api } from "../../main";
-import { ChatUser } from "../../types/user";
-import { getProfilePicURL } from "../../utils/requests";
+import { getUserData } from "../../utils/requests";
 import UserDisplay from "./UserDisplay";
+import { useQuery } from "@tanstack/react-query";
 
 function ConversationTopBar() {
   const { isWindowMobile, setConversationVisible } = useMobileWindowInfo();
   const { selectedUserId } = useSelectedUserId();
-  const [selectedUser, setSelectedUser] = useState<ChatUser>();
   const topBarHeightPx = 60;
 
-  useEffect(() => {
-    const getUserData = async () => {
-      try {
-        const res = await api.get(`/api/users/get-by-id/${selectedUserId}`);
-        const pfpID = res.data.user.profilePicture;
-        const pfpURL = pfpID ? await getProfilePicURL(pfpID) : "";
-        setSelectedUser({
-          ...res.data.user,
-          profilePictureURL: pfpURL,
-        });
-      } catch (err) {
-        console.error(err);
-      }
-    };
-
-    getUserData();
-  }, [selectedUserId]);
+  const { data: selectedUser } = useQuery({
+    queryKey: ["topBarUser", selectedUserId],
+    queryFn: () => getUserData(selectedUserId),
+    staleTime: 5 * 60 * 1000,
+    enabled: !!selectedUserId,
+  });
 
   const handleArrowClick = () => {
     setConversationVisible(false);
@@ -46,7 +32,8 @@ function ConversationTopBar() {
               height: topBarHeightPx,
               display: "flex",
               borderRadius: "50%",
-              p: 0, mx: "10px"
+              p: 0,
+              mx: "10px",
             }}
             onClick={handleArrowClick}
           >

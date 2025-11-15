@@ -1,9 +1,9 @@
 import { Box, useMediaQuery } from "@mui/material";
-import Sidebar from "../Components/chat/Sidebar";
+import Sidebar from "../components/chat/Sidebar";
 import { useState } from "react";
-import Conversation from "../Components/chat/Conversation";
-import ProfileDrawer from "../Components/chat/ProfileDrawer";
-import SearchMenu from "../Components/chat/SearchMenu";
+import Conversation from "../components/chat/Conversation";
+import ProfileDrawer from "../components/chat/ProfileDrawer";
+import SearchMenu from "../components/chat/SearchMenu";
 import {
   LastInteractedUserIdContext,
   MobileWindowInfoContext,

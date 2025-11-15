@@ -2,10 +2,10 @@ import { useState } from "react";
 import { Button, Typography } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 
-import FormWrapper from "../Components/FormWrapper";
-import Input from "../Components/Input";
+import FormWrapper from "../components/FormWrapper";
+import Input from "../components/Input";
 import useFormValues from "../hooks/useFormValues";
-import { useAuth } from "../Components/authentication/AuthProvider";
+import { useAuth } from "../components/authentication/AuthProvider";
 import { api } from "../main";
 
 function Login() {
