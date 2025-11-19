@@ -18,7 +18,7 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 const router = createBrowserRouter([
   {

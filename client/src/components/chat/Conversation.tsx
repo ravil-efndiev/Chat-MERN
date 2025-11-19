@@ -1,7 +1,7 @@
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { APIResponseMessage, ChatMessage } from "../../types/message";
 import sendIcon from "../../assets/send-arrow.svg";
-import { useEffect, useRef, useState, ReactNode } from "react";
+import { useEffect, useRef, useState, ReactNode, useMemo } from "react";
 import MessageBubble from "./MessageBubble";
 import { useSocket } from "../SocketProvider";
 import {
@@ -17,26 +17,41 @@ interface Props {
 }
 
 function Conversation({ refreshChatList }: Props) {
-  type MessagesByDay = Map<string, ChatMessage[]>;
-
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [messagesByDay, setMessagesByDay] = useState<MessagesByDay>(new Map());
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const { socket } = useSocket();
-  const { setSelectedUserId: setSelectedUserID } = useSelectedUserId();
+  const { setSelectedUserId } = useSelectedUserId();
   const { isWindowMobile, isConversationVisible } = useMobileWindowInfo();
   const { selectedUserId: otherUserId } = useSelectedUserId();
   const { lastInteractedUserId, setLastInteractedUserId } =
     useLastInteractedUserId();
+
+  const renderText = (message: string) =>
+    message
+      .split("\n")
+      .map((line, i) => <Typography key={i}>{line}</Typography>);
+
+  const messagesByDay = useMemo(() => {
+    const grouped = new Map<string, ChatMessage[]>();
+    if (!messages) return grouped;
+
+    messages.forEach((msg) => {
+      const day = new Date(msg.createdAt).toISOString().split("T")[0];
+
+      if (!grouped.has(day)) grouped.set(day, []);
+      grouped.get(day)!.push(msg);
+    });
+    
+    return grouped;
+  }, [messages]);
 
   useEffect(() => {
     if (!otherUserId || !socket) return;
     api
       .get(`/api/messages/get-all/${otherUserId}`)
       .then((res) => {
-        const formatted = formatMessages(res.data.messages);
-        setMessages(formatted);
+        setMessages(res.data.messages);
       })
       .catch(() => {
         setMessages([]);
@@ -51,9 +66,7 @@ function Conversation({ refreshChatList }: Props) {
           setLastInteractedUserId(otherUserId);
         }
 
-        setMessages((prev) => {
-          return formatMessages([...prev, msg.message]);
-        });
+        setMessages((prev) => [...prev, msg.message]);
       }
     };
 
@@ -65,40 +78,8 @@ function Conversation({ refreshChatList }: Props) {
   }, [otherUserId, socket]);
 
   useEffect(() => {
-    groupMessagesByDate();
     lastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  const formatMessages = (prev: ChatMessage[]) => {
-    const formatted = prev.map((msg) => {
-      if (msg.renderText) return msg;
-      const text: ReactNode = msg.message
-        .split("\n")
-        .map((line, index) => <Typography key={index}>{line}</Typography>);
-
-      return {
-        ...msg,
-        renderText: text,
-      };
-    });
-    return formatted;
-  };
-
-  const groupMessagesByDate = () => {
-    setMessagesByDay(new Map());
-    messages.forEach((msg) => {
-      const day = new Date(msg.createdAt).toISOString().split("T")[0];
-      setMessagesByDay((prev) => {
-        const newMessages = new Map(prev);
-        if (!newMessages.has(day)) {
-          newMessages.set(day, []);
-        }
-
-        newMessages.get(day)!.push(msg);
-        return newMessages;
-      });
-    });
-  };
 
   const handleMessageChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>
@@ -121,14 +102,14 @@ function Conversation({ refreshChatList }: Props) {
       })
       .then((res) => {
         if (messages.length <= 0) {
-          setSelectedUserID(otherUserId);
+          setSelectedUserId(otherUserId);
         }
         setMessages((prev) => {
           if (prev.length === 0) {
             refreshChatList();
           }
-          const newMesssages = [...prev, res.data.message];
-          return formatMessages(newMesssages);
+
+          return [...prev, res.data.message];
         });
         setNewMessage("");
       })
@@ -208,7 +189,7 @@ function Conversation({ refreshChatList }: Props) {
           {messages.map((msg) => (
             <MessageBubble
               key={msg.id}
-              text={msg.renderText}
+              text={renderText(msg.message)}
               isSender={msg.writtenByMe}
               createdAt={msg.createdAt}
             />

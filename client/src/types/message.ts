@@ -1,5 +1,3 @@
-import { ReactNode } from "react";
-
 export interface APIResponseMessage {
   id: string;
   message: string;
@@ -7,6 +5,4 @@ export interface APIResponseMessage {
   writtenByMe: boolean;
 }
 
-export interface ChatMessage extends APIResponseMessage {
-  renderText?: ReactNode;
-}
+export type ChatMessage = APIResponseMessage;
